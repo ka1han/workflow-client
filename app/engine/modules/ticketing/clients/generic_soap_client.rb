@@ -45,14 +45,25 @@ class GenericSoapClient < TicketClient
   def create_ticket ticket_data 
     raise "No ticket body" if not ticket_data[:body]
 
-    p "Creating SOAP ticket"
+    begin
+      resp = @client.request :urn, ticket_data[:operation] do
+        http.headers["SOAPAction"] = @endpoint
+        soap.input = [ "urn:" + ticket_data[:operation], {} ]
+        soap.header = ticket_data[:headers] || {}
+        soap.body = ticket_data[:body]
+      end
 
-    resp = @client.request :urn, ticket_data[:operation] do
-      http.headers["SOAPAction"] = @endpoint
-      soap.input = [ "urn:" + ticket_data[:operation], {} ]
-      soap.header = ticket_data[:headers] || {}
-      soap.body = ticket_data[:body]
+      ret = {}
+      ret[:status] = true
+      ret[:response] = resp
+
+      return ret
+    rescue Exception => e
+      ret = {}
+      ret[:status] = false
+      ret[:error] = e.message
+
+      return ret
     end
-
   end
 end

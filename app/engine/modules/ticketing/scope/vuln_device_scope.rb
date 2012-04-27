@@ -19,7 +19,6 @@ class VulnDeviceScope
 
   def self.build_ticket_data(nexpose_host, site_device_listing, host_data_array, ticket_config)
     res = []
-
     # Only do update process if the module supports it
     supports_updates = ticket_config.supports_updates
 
@@ -32,7 +31,7 @@ class VulnDeviceScope
 
     # Need to set the client_connector as part of the data returned
     c = Object.const_get(ticket_config.ticket_client_type.to_s)
-   
+
     ticket_client_info = nil
     if not c.respond_to? :client_name
       ticket_client_info = TicketClients.find_by_client('SOAP supported') 
@@ -57,12 +56,12 @@ class VulnDeviceScope
       fingerprint << (host_data['os_vendor'] || '')
       fingerprint << ' '
       fingerprint << (host_data['os_family'] || '')
-      
-      host_data['vulns'].each { |vuln_id, vuln_info|
+
+      host_data['vulns'].each do |vuln_id, vuln_info|
         vuln_status = vuln_info['status']
 
-        query_key = name + nexpose_host + "#{device_id}" + "#{vuln_id}"
-        
+        query_key = ticket_config.module_name + "|" + nexpose_host + "|#{device_id}" + "|#{vuln_id}"
+        p vuln_status
         if Util.is_vulnerable?(vuln_status)
           vkey = (vuln_info['key'] || '')
           vuln_endpoint_data = vuln_info['endpoint_data']
@@ -92,7 +91,7 @@ class VulnDeviceScope
               :formatter => formatter,
               :client_connector => client_connector,
               :ticket_op => :CREATE,
-              :module_name => ''
+              :module_name => ticket_config.module_name
           }
 
           ticket_id = self.get_ticket_key(ticket_data)
@@ -110,49 +109,19 @@ class VulnDeviceScope
           end
         # Process Non-vulnerable items
         else
-          if supports_updates
-            query = "SELECT * FROM tickets_createds where ticket_id LIKE '%#{query_key}%'"
+
+          if supports_updates and vuln_status == "not-vulnerable"
+            query = "SELECT * FROM tickets_createds WHERE ticket_id LIKE '#{query_key}%'"
             tickets_created = TicketsCreated.find_by_sql(query)
             if tickets_created
               non_vulns[query_key] = tickets_created
             end
           end
+
+
         end
-      }
-
-      if supports_updates and not non_vulns.empty?
-         # Process the non_vulns
-         # 1. For all tickets that are still vulnerable find them in the map
-         # 2. Remove those tickets that match the ticket_id
-         vuln_tickets.each do |vuln_ticket|
-            process_list = non_vulns[vuln_ticket[:query_key]]
-            if process_list
-              process_list.each do |ticket|
-                if ticket.ticket_id.eql?(vuln_ticket[:ticket_id])
-                  process_list.delete(ticket)
-                  # There can only be one.
-                  break
-                end
-              end
-            end
-         end
-
-         # If there is any data left, normalize and make tickets
-         non_vulns.keys.each do |key|
-           process_list = non_vulns[key]
-           process_list.each do |ticket_created|
-             ticket_data = {
-                           :ticket_data => ticket_created,
-                           :nexpose_host => nexpose_host,
-                           :formatter => formatter,
-                           :client_connector => client_connector,
-                           :ticket_op => :CLOSE,
-                           :module_name => module_name
-                       }
-             res << ticket_data
-           end
-         end
       end
+
     end
 
     res
@@ -181,20 +150,17 @@ class VulnDeviceScope
   end
 
   #---------------------------------------------------------------------------------------------------------------------
-  # @retuns true iff the ticket has already been created or is being processed
+  # @retuns true if the ticket has already been created or is being processed
   #---------------------------------------------------------------------------------------------------------------------
   def self.ticket_created_or_to_be_processed?(ticket_data)
     ticket_id = ticket_data[:ticket_id]
     return (TicketsCreated.where(:ticket_id => ticket_id).exists? or TicketsToBeProcessed.where(:ticket_id => ticket_id).exists?)
   end
- def self.get_device_id(ip, site_device_listing)
+
+  def self.get_device_id(ip, site_device_listing)
       raise ArgumentError.new('Site device listing was null @ TicketManager#get_device_id') unless site_device_listing
- 
-      p "In get_device_id"
-  
-  
+
       site_device_listing.each do |device_info|
-  
         return device_info[:device_id] if  device_info[:address] =~ /#{ip}/
       end
   end

@@ -50,8 +50,6 @@ class TicketAggregator
 
       begin
       ticket_scope_id = ticket_config.scope_id
-      #hardcode ticketing scope for now, since the above line was failing
-      #ticket_scope_id = 1
 
       # The module name is an integral part of knowing when to ticket
       module_name = ticket_config.module_name
@@ -68,13 +66,10 @@ class TicketAggregator
       begin
       case ticket_scope_id
         when 1
-          @logger.add_log_message "Using ticket per vuln per device scope."
           ticket_data = VulnDeviceScope.build_ticket_data(nexpose_host, site_device_listing, raw_xml_report_processor.host_data, ticket_config)
         when 2
-          @logger.add_log_message "Using ticket per device scope."
           ticket_data = DeviceScope.build_ticket_data(nexpose_host, site_device_listing, raw_xml_report_processor.host_data, ticket_config)
         when 3
-          @logger.add_log_message "Using ticket per vuln scope."
           ticket_data = VulnScope.build_ticket_data(nexpose_host, site_device_listing, raw_xml_report_processor.host_data, ticket_config)
         else
           raise "Invalid ticket scope encountered #{ticket_scope_id}"

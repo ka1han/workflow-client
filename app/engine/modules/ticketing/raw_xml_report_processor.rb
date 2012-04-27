@@ -16,6 +16,9 @@ class RawXMLReportProcessor
   def initialize
     @logger = LogManager.instance
     @parser = Rex::Parser::NexposeXMLStreamParser.new
+
+    @parser.parse_vulnerable_states_only false
+
     @parser.callback = proc { |type, value|
       case type
         when :host

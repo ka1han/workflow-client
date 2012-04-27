@@ -138,8 +138,6 @@ class TicketManager < Poller
         ticket_data = ticket_to_be_processed.ticket_data
         ticket_id = ticket_to_be_processed.ticket_id
 
-        p ticket_data.inspect
-
         # Initialize the ticket client
         client_connector = ticket_data[:client_connector].to_s
         ticket_client = Object.const_get(client_connector).new(ticket_data)
@@ -175,13 +173,9 @@ class TicketManager < Poller
             soap_ticket_data[:headers][key] = value
           end
 
-          begin
-            Tokenizer tokenizer = Tokenizer.new
-            soap_ticket_data = tokenizer.tokenize(ticket_data, soap_ticket_data)
-          rescue Exception => e
-            p e.message
-            p e.backtrace
-          end
+          Tokenizer tokenizer = Tokenizer.new
+          soap_ticket_data = tokenizer.tokenize(ticket_data, soap_ticket_data)
+
           #the ticket_data structure needs to change for the GenericSoapClient
           ticket_data = soap_ticket_data
         end
@@ -191,23 +185,23 @@ class TicketManager < Poller
         # Decode the proof.
         ticket_data[:proof] = Util.process_db_input_array(ticket_data[:proof])
 
-        worked = false
+        result = {}
         case ticket_data[:ticket_op]
           when :CREATE
-            worked = ticket_client.create_ticket(ticket_data)
+            result = ticket_client.create_ticket(ticket_data)
           when :UPDATE
-            worked = ticket_client.update_ticket(ticket_data)
+            result = ticket_client.update_ticket(ticket_data)
           when :CLOSE
-            worked = ticket_client.close_ticket(ticket_data)
+            result = ticket_client.close_ticket(ticket_data)
           else
             raise "Invalid ticket operation: #{ticket_data[:ticket_op]}"
         end
 
-        if !worked
-          raise "Could not create ticket."
+        if !result[:status]
+          raise "Could not create ticket: " + result[:error]
         else
           # Add ticket as already created
-          TicketsCreated.create(:ticket_id => ticket_id)
+          TicketsCreated.create(:ticket_id => ticket_id, :remote_key => result[:remote_key])
           ticket_to_be_processed.destroy
         end
 

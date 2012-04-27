@@ -89,14 +89,26 @@ class Jira4Client < TicketClient
     begin
       @jira.login @username, @password
       jira_issue = build_jira_issue data
-      @jira.create_issue_with_issue jira_issue
+      resp = @jira.create_issue_with_issue jira_issue
+
+      ret = {}
+      ret[:status] = true
+      ret[:response] = resp
+      ret[:remote_key] = resp.id
+
       @jira.logout
+
+      return ret
     rescue Exception => e
       p e.message
       p e.backtrace
-      return false
+
+      ret = {}
+      ret[:status] = false
+      ret[:error] = e.message
+
+      return ret
     end
-    return true
   end
 
   #---------------------------------------------------------------------------------------------------------------------
