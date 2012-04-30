@@ -42,12 +42,8 @@ class TicketConfigsController < ApplicationController
   #-------------------------------------------------------------------------------------------------------------------
   def edit
     @ticket_config = TicketConfig.find(params[:id])
-    @ticket_type = get_ticket_type(@ticket_config.ticket_client_type)
-
+    @ticket_type = get_ticket_type(@ticket_config)
     @ticket_mappings = @ticket_config.ticket_mapping
-
-    p @ticket_mappings.inspect
-
     @ticket_rules = @ticket_config.ticket_rule
 
     load_defaults
@@ -122,14 +118,10 @@ class TicketConfigsController < ApplicationController
       when /^SOAP/
         @selected_soap_op_id = params[:soap_ticket_op_id].chomp.to_i
         wsdl_file_name = session[:wsdl_file_name]
-
         # Load the WSDL objects
         load_wsdl_ops wsdl_file_name
-
         @operation = @wsdl_id_op_map.rassoc(@selected_soap_op_id)[0]
         @input_map = SOAPTicketConfig.parse_model_params(params, wsdl_file_name, @operation)
-
-        p @input_map.inspect
         ticket_client = SOAPTicketConfig.new
         ticket_client.mappings = @input_map
         @ticket_type = "SOAP supported"
@@ -261,9 +253,9 @@ class TicketConfigsController < ApplicationController
   #-------------------------------------------------------------------------------------------------------------------
   #
   #-------------------------------------------------------------------------------------------------------------------
-  def get_ticket_type type
+  def get_ticket_type config
 
-    case type
+    case config.ticket_client_type
       when /Jira3/
         @jira3_ticket_config = @ticket_config.ticket_client
         return 'Jira3x'
@@ -272,11 +264,11 @@ class TicketConfigsController < ApplicationController
         return 'Jira4x'
       when /SOAP/
         soap_config = @ticket_config.ticket_client
-        @input_map = soap_config.mappings
+        @input_map = soap_config.mappings[:body]
         # Important: de-serialized data is not converted to symbols, even if stored as such
-        wsdl_file_name = @input_map[:wsdl_file_name]
+        wsdl_file_name = soap_config.mappings[:wsdl_file_name]
         load_wsdl_ops wsdl_file_name
-        @selected_soap_op_id = @input_map[:selected_soap_id].chomp.to_i
+        @selected_soap_op_id = soap_config.mappings[:selected_soap_id].chomp.to_i
         @operation = @wsdl_id_op_map.rassoc(@selected_soap_op_id)[0]
         session[:wsdl_file_name] = wsdl_file_name
         return 'SOAP supported'

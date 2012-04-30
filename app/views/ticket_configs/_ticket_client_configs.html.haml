@@ -114,7 +114,7 @@
 									= check_box_tag :use_basic_auth_checkbox, "1", false, {:using_header_auth => @uses_header_auth}
 
 								%div{:id => "soap_headers"}
-									- if inputs['headers'] && !inputs['headers'].empty?
+									- if inputs['headers'] && !(inputs['headers'].length < 2)
 										- headers = get_headers(inputs['headers'], @wsdl_operations[port_type]['headers'])
 										- headers.each do |key, value|
 											- value.each do |header_name, header_inputs|
