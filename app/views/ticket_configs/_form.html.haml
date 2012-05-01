@@ -38,6 +38,11 @@
 											= f.check_box :is_active, {:checked => 'checked'}
 									%dl
 										%dt
+											= f.label 'Stage Tickets'
+										%dd
+											= f.check_box :stage_tickets
+									%dl
+										%dt
 											= f.label('Module Name*', nil, {:style => "color:red"})
 										%dd
 											= f.text_field :module_name

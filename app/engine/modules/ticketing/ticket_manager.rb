@@ -84,7 +84,7 @@ class TicketManager < Poller
 
   #---------------------------------------------------------------------------------------------------------------------
   # The default poller method fires and calls this method.
-  # There is only one process thread, threrefore considerations for multi-threads
+  # There is only one process thread, therefore considerations for multi-threads
   # are not needed.
   #---------------------------------------------------------------------------------------------------------------------
   def process
@@ -124,7 +124,8 @@ class TicketManager < Poller
 
     p "Handling tickets..."
 
-    query = 'SELECT id FROM tickets_to_be_processeds'
+    # This is done to reduce the memory footprint.
+    query = 'SELECT id FROM tickets_to_be_processeds WHERE staged = false'
     ticket_to_be_processed_ids = TicketsToBeProcessed.find_by_sql(query)
 
     return if not ticket_to_be_processed_ids or ticket_to_be_processed_ids.empty?

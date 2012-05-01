@@ -2,6 +2,7 @@ class CreateTicketConfigs < ActiveRecord::Migration
   def self.up
     create_table :ticket_configs do |t|
       t.boolean :is_active
+      t.boolean :stage_tickets, :null => false, :default => false
       t.boolean :supports_updates, :default => false
       t.integer :scope_id
       t.text :module_name

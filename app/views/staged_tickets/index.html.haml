@@ -1,0 +1,32 @@
+= javascript_include_tag 'nexpose_consoles'
+
+#nexpose_consoles
+	#overview
+		%div{:id => "detailed", :class => "tab_panel"}
+			=form_tag '/staged_tickets/update', :method => :update, :name => 'staged_tickets_form' do
+				%div{:class => "stepLead", :style => "width: 100%;"}
+					.step
+						%h3 Staged Tickets
+						.stepInfo
+							%table{:class => "list"}
+								%thead{:class => "list-table-header"}
+									%th{:class => "checkbox"}
+										= check_box_tag "all_staged_tickets", 1, false, {:class => 'master_checkbox'}
+									%th Module Name
+									%th Vulnerability Data
+									%th Device Data
+								- @tickets.each do |ticket|
+									%tr{:class => "#{cycle('odd', 'even')}"}
+										%td
+											= check_box_tag("ticket_ids[]", ticket.id, false, {:class => 'child_checkbox'})
+										%td
+											= ticket.module_name
+										%td
+											= select_tag("device_data", :disabled => true, ticket.device_option_string)
+										%td
+											= select_tag("vuln_data", :disabled => true, ticket.vuln_option_string)
+
+							- unless @tickets.empty?
+								.btnRow
+									%div{:class => "btn"}
+										=submit_tag "Update", :class => "update", :confirm => "Update staged tickets"

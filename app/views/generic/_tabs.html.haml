@@ -13,3 +13,7 @@
 		%li{ :class => "h #{class_for_tab(:integer_property)}"}
 			= link_to '/integer_property' do
 				%span.tab Configuration
+		- if TicketsToBeProcessed.has_staged_tickets?
+			%li{ :class => "h #{class_for_tab(:staged_tickets)}"}
+				= link_to '/staged_tickets' do
+					%span.tab Configuration

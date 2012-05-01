@@ -42,7 +42,7 @@ class DeviceScope
         :formatter => formatter,
         :client_connector => client_connector,
         :ticket_op => :CREATE,
-        :module_name => ''
+        :module_name => ticket_config.module_name
       }
 
       ticket_id = self.get_ticket_key(ticket_data)
