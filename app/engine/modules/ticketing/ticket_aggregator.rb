@@ -67,10 +67,13 @@ class TicketAggregator
       case ticket_scope_id
         when 1
           ticket_data = VulnDeviceScope.build_ticket_data(nexpose_host, site_device_listing, raw_xml_report_processor.host_data, ticket_config)
+          ticket_data[:scope_id] = 1
         when 2
           ticket_data = DeviceScope.build_ticket_data(nexpose_host, site_device_listing, raw_xml_report_processor.host_data, ticket_config)
+          ticket_data[:scope_id] = 2
         when 3
           ticket_data = VulnScope.build_ticket_data(nexpose_host, site_device_listing, raw_xml_report_processor.host_data, ticket_config)
+          ticket_data[:scope_id] = 3
         else
           raise "Invalid ticket scope encountered #{ticket_scope_id}"
       end
