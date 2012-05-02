@@ -49,51 +49,57 @@ class TicketAggregator
       next unless ticket_config.is_active
 
       begin
-      ticket_scope_id = ticket_config.scope_id
+        ticket_scope_id = ticket_config.scope_id
 
-      # The module name is an integral part of knowing when to ticket
-      module_name = ticket_config.module_name
+        # The module name is an integral part of knowing when to ticket
+        module_name = ticket_config.module_name
 
-      # Check if this scan has already been processed for this module.
+        # Check if this scan has already been processed for this module.
 
-      next if ScansProcessed.where(:host => nexpose_host,
-                                   :scan_id => ticket_params[:scan_id].to_s, 
-                                   :module => module_name).exists?
+        next if ScansProcessed.where(:host => nexpose_host,
+                                     :scan_id => ticket_params[:scan_id].to_s,
+                                     :module => module_name).exists?
       rescue Exception => e
         p e.message
         p e.backtrace
       end
+      scope_id = 0
       begin
-      case ticket_scope_id
-        when 1
-          ticket_data = VulnDeviceScope.build_ticket_data(nexpose_host, site_device_listing, raw_xml_report_processor.host_data, ticket_config)
-          ticket_data[:scope_id] = 1
-        when 2
-          ticket_data = DeviceScope.build_ticket_data(nexpose_host, site_device_listing, raw_xml_report_processor.host_data, ticket_config)
-          ticket_data[:scope_id] = 2
-        when 3
-          ticket_data = VulnScope.build_ticket_data(nexpose_host, site_device_listing, raw_xml_report_processor.host_data, ticket_config)
-          ticket_data[:scope_id] = 3
-        else
-          raise "Invalid ticket scope encountered #{ticket_scope_id}"
-      end
-      rescue Exception => e
-        p e.message
-        p e.backtrace
-      end
-
-      begin
-      # Now create eac ticket
-      ticket_data.each do |ticket|
-        next if ticket.kind_of? String
-        ticket_id = ticket[:ticket_id]
-        unless ticket_in_creation_queue?(ticket_id)
-          # Add the NSC host address
-          ticket[:nsc_host] = nexpose_host
-          ticket[:ticket_config] = ticket_config
-          TicketsToBeProcessed.create(:ticket_id => ticket_id, :ticket_data => ticket)
+        case ticket_scope_id
+          when 1
+            ticket_data = VulnDeviceScope.build_ticket_data(nexpose_host, site_device_listing, raw_xml_report_processor.host_data, ticket_config)
+            scope_id = 1
+          when 2
+            ticket_data = DeviceScope.build_ticket_data(nexpose_host, site_device_listing, raw_xml_report_processor.host_data, ticket_config)
+            scope_id = 2
+          when 3
+            ticket_data = VulnScope.build_ticket_data(nexpose_host, site_device_listing, raw_xml_report_processor.host_data, ticket_config)
+            scope_id = 3
+          else
+            raise "Invalid ticket scope encountered #{ticket_scope_id}"
         end
+      rescue Exception => e
+        p e.message
+        p e.backtrace
       end
+
+      begin
+        # Now create each ticket
+        ticket_data.each do |ticket|
+          next if ticket.kind_of? String
+          ticket_id = ticket[:ticket_id]
+          unless ticket_in_creation_queue?(ticket_id)
+            # Add the NSC host address
+            ticket[:nsc_host] = nexpose_host
+            ticket[:ticket_config] = ticket_config
+            ticket[:scope_id] = scope_id
+            TicketsToBeProcessed.create(
+              :ticket_id => ticket_id,
+              :ticket_data => ticket,
+              :staged => ticket_config.stage_tickets
+            )
+          end
+        end
       rescue Exception => e
         p e.message
         p e.backtrace

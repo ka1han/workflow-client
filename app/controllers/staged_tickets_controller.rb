@@ -5,7 +5,7 @@
 # == Author
 # Christopher Lee christopher_lee@rapid7.com
 #-----------------------------------------------------------------------------------------------------------------------
-class StagedTickets < ApplicationController
+class StagedTicketsController < ApplicationController
   respond_to :html
 
   #---------------------------------------------------------------------------------------------------------------------
@@ -18,26 +18,28 @@ class StagedTickets < ApplicationController
       data = {}
       ticket_data = staged_ticket.ticket_data
 
-      data[:module_name] = ticket_data[:module_name]
+      data[:id] = staged_ticket[:id]
       case ticket_data[:scope_id]
         when 1
-          data[:device_option_string] = build_option_string([ticket_data[:name]])
-          data[:vuln_option_string] = build_option_string([VulnInfo.get_vuln_title(ticket_data[:vuln_id])])
+          data[:single_device] = true
+          data[:single_vuln] =true
+          data[:device_string] = ticket_data[:name]
+          data[:vuln_string] = VulnInfo.get_vuln_title(ticket_data[:vuln_id])
         when 2
-          data[:device_option_string] = build_option_string([ticket_data[:name]])
+          data[:device_string] = build_option_string([ticket_data[:name]])
           vulns = []
           vuln_data = data[:host_vulns]
           vuln_data.each do |vuln_id, vuln_info|
             vulns << VulnInfo.get_vuln_title(vuln_id)
           end
-          data[:vuln_option_string] = build_option_string(vulns)
+          data[:vuln_string] = build_option_string(vulns)
         when 3
-          data[:vuln_option_string] = build_option_string([VulnInfo.get_vuln_title(ticket_data[:ticket_id])])
+          data[:vuln_string] = build_option_string([VulnInfo.get_vuln_title(ticket_data[:ticket_id])])
           hosts = []
           ticket_data[:hosts].each do |host|
             hosts << host[:name]
           end
-          data[:device_option_string] = build_option_string(hosts)
+          data[:device_string] = build_option_string(hosts)
         else
           # TODO: Maybe log.
           next
@@ -45,19 +47,21 @@ class StagedTickets < ApplicationController
 
       @tickets << data
     end
+
+    @tickets
   end
 
   #---------------------------------------------------------------------------------------------------------------------
   # Unsets the staged flag for the passed in IDs.
   #---------------------------------------------------------------------------------------------------------------------
   def update
-    unstaged_tickets = TicketsToBeProcessed.find_all(params[:ticket_ids])
+    unstaged_tickets = TicketsToBeProcessed.find(params[:ticket_ids])
     unstaged_tickets.each do |ticket|
       ticket.staged = false
       ticket.save
     end
 
-    redirect_to '/index'
+    redirect_to '/staged_tickets'
   end
 
   private
@@ -72,7 +76,6 @@ class StagedTickets < ApplicationController
       value << option
       value << '</option>'
     end
-
     value
   end
 end
