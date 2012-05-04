@@ -13,11 +13,11 @@ class Jira4Client < TicketClient
   #---------------------------------------------------------------------------------------------------------------------
   def initialize(*args)
     super()
-    p "Initializing JIRA4 client..."
+
     count = args.length
     if count == 1
       ticket = args[0]
-      #
+
       @ticket_client_config = ticket[:ticket_config]
       @ticket_mappings = ticket[:ticket_mapping] if ticket[:ticket_mapping]
       @mapping_defined = is_mapping_defined? if @ticket_mappings
@@ -129,11 +129,11 @@ class Jira4Client < TicketClient
 
     formatter = get_formatter ticket_data[:formatter].to_s
     vuln_id = ticket_data[:vuln_id]
-    
-    if vuln_id and not vuln_id.empty?
+
+    if vuln_id and not vuln_id.empty? #PerVulnPerDevice scope
       vuln_info = VulnInfo.find_by_vuln_id(vuln_id)
       raise "Could not find vuln data for vuln id: #{vuln_id}" unless vuln_info
-      
+
       ticket_info = {
           :description => vuln_info.vuln_data[:description],
           :proof       => ticket_data[:proof],
@@ -164,7 +164,7 @@ class Jira4Client < TicketClient
       data[:assignee_username] = @client_info.assignee
       data[:cvss_score]        = vuln_info[:cvss]
       data
-    elsif ticket_data[:host_vulns]
+    elsif ticket_data[:host_vulns] #PerDevice scope
       data = {}
 
       data[:summary] = ticket_data[:ip] 
@@ -251,13 +251,9 @@ class Jira4Client < TicketClient
   # This should use the user defined map to build the jira issue
   #
   def build_jira_issue data
-
-    p "Building JIRA issue..."
-
     jira_issue = JIRA::Issue.new
 
     data.each do |key, value|
-
       case key
         when :description
           jira_issue.description = value
@@ -322,16 +318,28 @@ class Jira4Client < TicketClient
   def close_ticket ticket_data
     @jira.login @username, @password
 
+    #get the available actions for the given ticket
     resp = @jira.available_actions ticket_data[:ticket_id]
-    
-    #[#<JIRA::NamedEntity:0x00000004ef72f8 @id=\"4\", @name=\"Start Progress\">, #<JIRA::NamedEntity:0x00000004ef7028 @id=\"5\", @name=\"Resolve Issue\">, #<JIRA::NamedEntity:0x00000004ef6e20 @id=\"2\", @name=\"Close Issue\">]
 
-    action_id = ''
+    action_id = 0
+
+    #Every ticket has a specific set of action that are available
+    #The id's for these actions differ from one installation to another
+    #but the names remain the same
+    #
+    #Loop through each action, find the Resolve Issue action and grab its id
+    #
+    #The id is required to progress the workflow correctly
     resp.each do |action|
       next if action.name != "Resolve Issue"
       action_id = action.id.to_i
     end
 
+    if action_id == 0
+      raise "Couldn't find the the Resolve Issue action."
+    end
+
+    #the field value we will be updating when we progress the workflow
     resolved = JIRA::FieldValue.new 'resolution', 1
 
     ret = {}
@@ -344,36 +352,13 @@ class Jira4Client < TicketClient
     rescue Exception => e
       p e.message
       p e.backtrace
-    
+
       ret[:status] = false
       ret[:error] = e.message
     end
 
     @jira.logout
-  
+
     ret
   end
-
 end
-
-=begin
-begin
-	jira4 = Jira4Client.new 'chrlee', 'badabing', 'localhost', '8080'
-
-	data ={
-	   :ticket_type => 'test_ticket',
-	   :summary	    => "summary",
-       :priority_id   	=> '1',
-       :assignee_username  	=> 'chrlee',
-       :reporter_username	  => 'chrlee',
-       :environment	=> "unix",
-       :description	=> "desc",
-       :issue_type_id   => '1',
-       :project_name => 'test'
-	}
-
-	msg = jira4.insert_ticket data
-	puts msg
-
-end
-=end

@@ -17,6 +17,8 @@ class RawXMLReportProcessor
     @logger = LogManager.instance
     @parser = Rex::Parser::NexposeXMLStreamParser.new
 
+    #setting this to false tells the parser to pass us the non-vulnerable
+    #checks as well, this enables closed-loop ticketing
     @parser.parse_vulnerable_states_only false
 
     @parser.callback = proc { |type, value|

@@ -122,8 +122,6 @@ class TicketManager < Poller
   #---------------------------------------------------------------------------------------------------------------------
   def handle_tickets
 
-    p "Handling tickets..."
-
     # This is done to reduce the memory footprint.
     query = 'SELECT id FROM tickets_to_be_processeds WHERE staged = false'
     ticket_to_be_processed_ids = TicketsToBeProcessed.find_by_sql(query)
@@ -174,6 +172,7 @@ class TicketManager < Poller
             soap_ticket_data[:headers][key] = value
           end
 
+          #replace $TOKEN$ vars with the data from the scan.
           Tokenizer tokenizer = Tokenizer.new
           soap_ticket_data = tokenizer.tokenize(ticket_data, soap_ticket_data)
 
@@ -187,7 +186,7 @@ class TicketManager < Poller
           # Decode the proof.
           ticket_data[:proof] = Util.process_db_input_array(ticket_data[:proof])
         end
-      
+
         result = {}
         case ticket_data[:ticket_op]
           when :CREATE
@@ -195,14 +194,13 @@ class TicketManager < Poller
           when :UPDATE
             result = ticket_client.update_ticket(ticket_data)
           when :CLOSE
-            p "Closing ticket: " + ticket_data[:ticket_id]
             result = ticket_client.close_ticket(ticket_data)
           else
             raise "Invalid ticket operation: #{ticket_data[:ticket_op]}"
         end
 
         if !result[:status]
-          raise "Could not create ticket: " + result[:error]
+          raise "Could not create or update ticket: " + result[:error]
         else
           # Add ticket as already created
           TicketsCreated.create(:ticket_id => ticket_id, :remote_key => result[:remote_key])
@@ -210,8 +208,6 @@ class TicketManager < Poller
         end
 
       rescue Exception => e
-        p e.message
-        p e.backtrace
         failed_attempts = ticket_to_be_processed.failed_attempt_count
         if failed_attempts > IntegerProperty.find_by_property_key('max_ticketing_attempts').property_value
           ticket_to_be_processed.failed_message = e.message

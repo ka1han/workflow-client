@@ -1,8 +1,12 @@
+#The device scope creates one ticket per device, with all the vulns an asset has
 class DeviceScope
 
   def self.build_ticket_data(nexpose_host, site_device_listing, hosts_data_array, ticket_config)
+
+    #this is what we return
     res = []
 
+    #Do we support updating tickets or closed loop ticketing
     supports_updates = ticket_config.supports_updates
 
     non_vulns = {}
@@ -15,18 +19,21 @@ class DeviceScope
     client_connector = ticket_client_info.client_connector
 
     formatter = ticket_client_info.formatter 
- 
+
     hosts_data_array.each do |host_data|
       next if host_data['vulns'].length == 0
 
       ip = host_data['addr']
       names = host_data['names']
 
+      #the nexpose device id, an integer
       device_id = self.get_device_id(ip, site_device_listing)
 
+      #hostname of the device, if one exists
       name = ''
       name = names[0] if (!names.nil? && !names.empty?)
 
+      #os fingerprint
       fingerprint = ''
       fingerprint << (host_data['os_vendor'] || '')
       fingerprint << ' '
@@ -49,10 +56,12 @@ class DeviceScope
       ticket_data[:ticket_id] = ticket_id
 
       if !self.ticket_created_or_to_be_processed?(ticket_data)
+        #we need to ensure the ticket passes all our rules
         if rule_manager.passes_rules?(ticket_data)
           res << ticket_data
         end
       else
+        #nothing so far
       end
     end
     res
