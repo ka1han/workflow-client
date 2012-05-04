@@ -42,7 +42,7 @@ class DeviceScope
         :formatter => formatter,
         :client_connector => client_connector,
         :ticket_op => :CREATE,
-        :module_name => ''
+        :module_name => ticket_config.module_name
       }
 
       ticket_id = self.get_ticket_key(ticket_data)
@@ -74,7 +74,12 @@ class DeviceScope
   #---------------------------------------------------------------------------------------------------------------------
   def self.get_ticket_key(ticket)
     key = ''
+    key << ticket[:module_name]
+    key << '|'
+    key << ticket[:nexpose_host]
+    key << '|'
     key << ticket[:device_id].to_s
+
     key
   end
 end

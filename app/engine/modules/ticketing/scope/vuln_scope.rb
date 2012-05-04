@@ -27,11 +27,10 @@ class VulnScope
       host_ticket_data[:ip] = host_data['addr']
 
       host_data["vulns"].each do |vuln|
-   
         id = vuln[0]
 
         vulns[id]                    ||= {}
-        vulns[id][:ticket_id]        ||= vuln[0]
+        vulns[id][:ticket_id]        ||= id
         vulns[id][:ticket_op]        ||= :CREATE
         vulns[id][:hosts]            ||= [] #create hosts array for parent hash if it doesn't exist already
         vulns[id][:hosts]            << host_ticket_data

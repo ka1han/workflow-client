@@ -43,11 +43,7 @@ class TicketConfigsController < ApplicationController
   def edit
     @ticket_config = TicketConfig.find(params[:id])
     @ticket_type = get_ticket_type(@ticket_config.ticket_client_type)
-
     @ticket_mappings = @ticket_config.ticket_mapping
-
-    p @ticket_mappings.inspect
-
     @ticket_rules = @ticket_config.ticket_rule
 
     load_defaults
@@ -129,7 +125,6 @@ class TicketConfigsController < ApplicationController
         @operation = @wsdl_id_op_map.rassoc(@selected_soap_op_id)[0]
         @input_map = SOAPTicketConfig.parse_model_params(params, wsdl_file_name, @operation)
 
-        p @input_map.inspect
         ticket_client = SOAPTicketConfig.new
         ticket_client.mappings = @input_map
         @ticket_type = "SOAP supported"

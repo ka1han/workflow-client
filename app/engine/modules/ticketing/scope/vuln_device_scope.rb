@@ -61,7 +61,6 @@ class VulnDeviceScope
         vuln_status = vuln_info['status']
 
         query_key = ticket_config.module_name + "|" + nexpose_host + "|#{device_id}" + "|#{vuln_id}"
-        p vuln_status
         if Util.is_vulnerable?(vuln_status)
           vkey = (vuln_info['key'] || '')
           vuln_endpoint_data = vuln_info['endpoint_data']
@@ -109,19 +108,26 @@ class VulnDeviceScope
           end
         # Process Non-vulnerable items
         else
-
           if supports_updates and vuln_status == "not-vulnerable"
             query = "SELECT * FROM tickets_createds WHERE ticket_id LIKE '#{query_key}%'"
-            tickets_created = TicketsCreated.find_by_sql(query)
-            if tickets_created
-              non_vulns[query_key] = tickets_created
+            tickets = TicketsCreated.find_by_sql(query)
+
+            if tickets and !tickets.empty?
+              tickets.each do |ticket|
+
+                ticket_data = {
+                  :ticket_op => :CLOSE,
+                  :client_connector => client_connector,
+                  :module_name => ticket_config.module_name,
+                  :ticket_id => ticket[:remote_key]
+                }
+
+                res << ticket_data
+              end
             end
           end
-
-
         end
       end
-
     end
 
     res

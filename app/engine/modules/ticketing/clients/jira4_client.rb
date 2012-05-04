@@ -94,7 +94,7 @@ class Jira4Client < TicketClient
       ret = {}
       ret[:status] = true
       ret[:response] = resp
-      ret[:remote_key] = resp.id
+      ret[:remote_key] = resp.key
 
       @jira.logout
 
@@ -319,8 +319,39 @@ class Jira4Client < TicketClient
   #
   #
   #
-  def delete_ticket
+  def close_ticket ticket_data
+    @jira.login @username, @password
 
+    resp = @jira.available_actions ticket_data[:ticket_id]
+    
+    #[#<JIRA::NamedEntity:0x00000004ef72f8 @id=\"4\", @name=\"Start Progress\">, #<JIRA::NamedEntity:0x00000004ef7028 @id=\"5\", @name=\"Resolve Issue\">, #<JIRA::NamedEntity:0x00000004ef6e20 @id=\"2\", @name=\"Close Issue\">]
+
+    action_id = ''
+    resp.each do |action|
+      next if action.name != "Resolve Issue"
+      action_id = action.id.to_i
+    end
+
+    resolved = JIRA::FieldValue.new 'resolution', 1
+
+    ret = {}
+    begin
+      resp = @jira.progress_workflow_action ticket_data[:ticket_id], action_id, resolved
+
+      ret[:status] = true
+      ret[:response] = resp
+
+    rescue Exception => e
+      p e.message
+      p e.backtrace
+    
+      ret[:status] = false
+      ret[:error] = e.message
+    end
+
+    @jira.logout
+  
+    ret
   end
 
 end

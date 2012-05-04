@@ -32,10 +32,10 @@ class ReportDataManager
       end
     end
 
-#    p "trying new method"
+    #p "trying new method"
     # If adhoc fails fall back on disk generation.
-#    data = get_on_disk_report_for_scan(scan_id) 
-#    p data.to_s.inspect
+    #data = get_on_disk_report_for_scan(scan_id) 
+    #p data.to_s.inspect
     data
   end
 

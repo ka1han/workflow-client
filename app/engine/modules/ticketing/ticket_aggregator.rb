@@ -63,6 +63,7 @@ class TicketAggregator
         p e.message
         p e.backtrace
       end
+      ticket_data = []
       begin
       case ticket_scope_id
         when 1
@@ -80,21 +81,21 @@ class TicketAggregator
       end
 
       begin
-      # Now create eac ticket
-      ticket_data.each do |ticket|
-        next if ticket.kind_of? String
-        ticket_id = ticket[:ticket_id]
-        unless ticket_in_creation_queue?(ticket_id)
-          # Add the NSC host address
-          ticket[:nsc_host] = nexpose_host
-          ticket[:ticket_config] = ticket_config
-          TicketsToBeProcessed.create(:ticket_id => ticket_id, :ticket_data => ticket)
+        # Now create each ticket
+        ticket_data.each do |ticket|
+          next if ticket.kind_of? String
+          ticket_id = ticket[:ticket_id]
+          unless ticket_in_creation_queue?(ticket_id)
+            # Add the NSC host address
+            ticket[:nsc_host] = nexpose_host
+            ticket[:ticket_config] = ticket_config
+            TicketsToBeProcessed.create(:ticket_id => ticket_id, :ticket_data => ticket)
+          end
         end
-      end
-      rescue Exception => e
-        p e.message
-        p e.backtrace
-      end
+        rescue Exception => e
+          p e.message
+          p e.backtrace
+        end
 
       ScansProcessed.create(:scan_id => scan_id, :host => nexpose_host, :module => module_name)
     end
