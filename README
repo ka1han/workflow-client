@@ -26,6 +26,13 @@ Closed-loop ticketing is the ability to find a vulnerability on the networkin du
 then check later scans to see if the vulnerability has been fixed and resolve the ticket created
 from a prior scan.
 
+##########
+SOAP WSDL:
+##########
+Nexflow has the ability to consume a generic SOAP WSDL and create post tickets with defined tokens.
+This is the Generic SOAP ticket module option when creating your output module.
+The tokens are replaced with the ticket data from scans prior to being posted to the SOAP endpoint.
+
 #############################
 STARTING THE WORKFLOW ENGINE:
 #############################
