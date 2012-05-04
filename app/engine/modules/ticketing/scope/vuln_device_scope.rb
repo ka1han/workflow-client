@@ -16,7 +16,6 @@
 #-----------------------------------------------------------------------------------------------------------------------
 class VulnDeviceScope
 
-
   def self.build_ticket_data(nexpose_host, site_device_listing, host_data_array, ticket_config)
     res = []
     # Only do update process if the module supports it
@@ -32,12 +31,7 @@ class VulnDeviceScope
     # Need to set the client_connector as part of the data returned
     c = Object.const_get(ticket_config.ticket_client_type.to_s)
 
-    ticket_client_info = nil
-    if not c.respond_to? :client_name
-      ticket_client_info = TicketClients.find_by_client('SOAP supported') 
-    else
-      ticket_client_info = TicketClients.find_by_client(c.client_name)
-    end
+    ticket_client_info = TicketClients.find_by_client(c.client_name)
 
     client_connector = ticket_client_info.client_connector
     formatter = ticket_client_info.formatter
@@ -61,6 +55,7 @@ class VulnDeviceScope
         vuln_status = vuln_info['status']
 
         query_key = ticket_config.module_name + "|" + nexpose_host + "|#{device_id}" + "|#{vuln_id}"
+
         if Util.is_vulnerable?(vuln_status)
           vkey = (vuln_info['key'] || '')
           vuln_endpoint_data = vuln_info['endpoint_data']

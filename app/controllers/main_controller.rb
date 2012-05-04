@@ -1,5 +1,3 @@
-require File.expand_path(File.join(File.dirname(__FILE__), '../engine/logging/log_manager'))
-
 class MainController < ApplicationController
 
   #

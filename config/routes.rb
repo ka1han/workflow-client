@@ -4,7 +4,9 @@ WorkFlowEngineOnRails::Application.routes.draw do
   resources :ticket_rules
 
   match "nsc_configs/destroy" => "nsc_configs#destroy"
+  match "staged_tickets/update" => "staged_tickets#update"
   match "main/get_log" => "main#get_log"
+  match 'staged_tickets' => 'staged_tickets#index'
   match 'ticket_configs/show' => 'ticket_configs#show'
   match 'ticket_configs/new/:wsdl_file_name' => 'ticket_configs#new'
   match 'integer_property/edit' => 'integer_property#edit'
