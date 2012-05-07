@@ -22,8 +22,6 @@ class GenericSoapClient < TicketClient
 
     op = config.mappings[:operation].split '|'
 
-    #p @parser.inspect
-
     #this is brittle
     @parser.services.each do |service|
       service["children"].each do |child|
@@ -65,5 +63,13 @@ class GenericSoapClient < TicketClient
 
       return ret
     end
+  end
+
+  def parse_model_params parms
+    p parms.inspect
+  end
+
+  def create_test_ticket
+
   end
 end
