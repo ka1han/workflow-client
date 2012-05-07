@@ -84,7 +84,7 @@ class TicketManager < Poller
 
   #---------------------------------------------------------------------------------------------------------------------
   # The default poller method fires and calls this method.
-  # There is only one process thread, threrefore considerations for multi-threads
+  # There is only one process thread, therefore considerations for multi-threads
   # are not needed.
   #---------------------------------------------------------------------------------------------------------------------
   def process
@@ -121,7 +121,9 @@ class TicketManager < Poller
   # Performs ticket processing.
   #---------------------------------------------------------------------------------------------------------------------
   def handle_tickets
-    query = 'SELECT id FROM tickets_to_be_processeds'
+
+    # This is done to reduce the memory footprint.
+    query = 'SELECT id FROM tickets_to_be_processeds WHERE staged = false'
     ticket_to_be_processed_ids = TicketsToBeProcessed.find_by_sql(query)
 
     return if not ticket_to_be_processed_ids or ticket_to_be_processed_ids.empty?
@@ -170,39 +172,38 @@ class TicketManager < Poller
             soap_ticket_data[:headers][key] = value
           end
 
-          begin
-            Tokenizer tokenizer = Tokenizer.new
-            soap_ticket_data = tokenizer.tokenize(ticket_data, soap_ticket_data)
-          rescue Exception => e
-            p e.message
-            p e.backtrace
-          end
+          #replace $TOKEN$ vars with the data from the scan.
+          Tokenizer tokenizer = Tokenizer.new
+          soap_ticket_data = tokenizer.tokenize(ticket_data, soap_ticket_data)
+
           #the ticket_data structure needs to change for the GenericSoapClient
           ticket_data = soap_ticket_data
         end
 
         host = ticket_data[:nsc_host]
 
-        # Decode the proof.
-        ticket_data[:proof] = Util.process_db_input_array(ticket_data[:proof])
+        if ticket_data[:proof]
+          # Decode the proof.
+          ticket_data[:proof] = Util.process_db_input_array(ticket_data[:proof])
+        end
 
-        worked = false
+        result = {}
         case ticket_data[:ticket_op]
           when :CREATE
-            worked = ticket_client.create_ticket(ticket_data)
+            result = ticket_client.create_ticket(ticket_data)
           when :UPDATE
-            worked = ticket_client.update_ticket(ticket_data)
+            result = ticket_client.update_ticket(ticket_data)
           when :CLOSE
-            worked = ticket_client.close_ticket(ticket_data)
+            result = ticket_client.close_ticket(ticket_data)
           else
             raise "Invalid ticket operation: #{ticket_data[:ticket_op]}"
         end
 
-        if !worked
-          raise "Could not create ticket."
+        if !result[:status]
+          raise "Could not create or update ticket: " + result[:error]
         else
           # Add ticket as already created
-          TicketsCreated.create(:ticket_id => ticket_id)
+          TicketsCreated.create(:ticket_id => ticket_id, :remote_key => result[:remote_key])
           ticket_to_be_processed.destroy
         end
 

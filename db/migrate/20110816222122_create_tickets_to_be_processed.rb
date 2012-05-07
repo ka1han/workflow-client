@@ -4,6 +4,7 @@ class CreateTicketsToBeProcessed < ActiveRecord::Migration
       t.text    :ticket_id
       t.text    :ticket_data
       t.boolean :pending_requeue, :null => false, :default => false
+      t.boolean :staged, :null => false, :default => false
       t.integer :failed_attempt_count, :null => false, :default => 0
       t.text  :failed_message
     end

@@ -22,8 +22,6 @@ class GenericSoapClient < TicketClient
 
     op = config.mappings[:operation].split '|'
 
-    #p @parser.inspect
-
     #this is brittle
     @parser.services.each do |service|
       service["children"].each do |child|
@@ -45,12 +43,33 @@ class GenericSoapClient < TicketClient
   def create_ticket ticket_data 
     raise "No ticket body" if not ticket_data[:body]
 
-    resp = @client.request :urn, ticket_data[:operation] do
-      http.headers["SOAPAction"] = @endpoint
-      soap.input = [ "urn:" + ticket_data[:operation], {} ]
-      soap.header = ticket_data[:headers] || {}
-      soap.body = ticket_data[:body]
+    begin
+      resp = @client.request :urn, ticket_data[:operation] do
+        http.headers["SOAPAction"] = @endpoint
+        soap.input = [ "urn:" + ticket_data[:operation], {} ]
+        soap.header = ticket_data[:headers] || {}
+        soap.body = ticket_data[:body]
+      end
+
+      ret = {}
+      ret[:status] = true
+      ret[:response] = resp
+
+      return ret
+    rescue Exception => e
+      ret = {}
+      ret[:status] = false
+      ret[:error] = e.message
+
+      return ret
     end
+  end
+
+  def parse_model_params parms
+    p parms.inspect
+  end
+
+  def create_test_ticket
 
   end
 end

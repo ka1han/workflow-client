@@ -1,5 +1,3 @@
-require File.expand_path(File.join(File.dirname(__FILE__), '../engine/logging/log_manager'))
-
 class MainController < ApplicationController
 
   #
@@ -33,7 +31,6 @@ class MainController < ApplicationController
   #
   #
   def prettify(line)
-    p line.inspect
     ltype = case line[0, 3]
               when '[-]'
                 'error'

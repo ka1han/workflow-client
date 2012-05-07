@@ -1,3 +1,5 @@
+#This class create a ticket for each vuln found by the nexpose engine
+#Each ticket will contain every asset vulnerable to the given vuln
 class VulnScope
 
   def self.build_ticket_data(nexpose_host, site_device_listing, host_data_array, ticket_config)
@@ -14,11 +16,17 @@ class VulnScope
 
       host_ticket_data = {}
 
+      #the nexpose device id
       device_id = self.get_device_id(host_data['addr'], site_device_listing)
+
+      #the hostname of the device, if it exists
       name = ''
       name = host_data['names'][0] if (!host_data['names'][0].nil? && !host_data['names'][0].empty?)
+
+      #the os nexpose thinks the asset is
       fingerprint = ''
       fingerprint << (host_data['os_vendor'] || '')
+      fingerprint << ' '
       fingerprint << (host_data['os_family'] || '')
 
       host_ticket_data[:device_id] = device_id
@@ -27,16 +35,16 @@ class VulnScope
       host_ticket_data[:ip] = host_data['addr']
 
       host_data["vulns"].each do |vuln|
-   
         id = vuln[0]
 
-        vulns[id]                    ||= {}
-        vulns[id][:ticket_id]        ||= vuln[0]
+        vulns[id]                    ||= {} #make the vuln hash if it doesn't exist already
+        vulns[id][:ticket_id]        ||= id
         vulns[id][:ticket_op]        ||= :CREATE
         vulns[id][:hosts]            ||= [] #create hosts array for parent hash if it doesn't exist already
         vulns[id][:hosts]            << host_ticket_data
         vulns[id][:client_connector] ||= client_connector
         vulns[id][:formatter]        ||= formatter
+        vulns[id][:module_name]      << ticket_config.module_name
       end
 
       #TODO
@@ -49,8 +57,9 @@ class VulnScope
       #instead of using host based rules.
       #
       #rule exempt for now
-
     end
+
+    #convert the hash to an array and flatten it for processing later
     vulns.to_a.flatten
   end
 

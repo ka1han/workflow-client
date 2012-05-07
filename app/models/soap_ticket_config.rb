@@ -142,4 +142,7 @@ class SOAPTicketConfig < ActiveRecord::Base
 		input
   end
 
+  def self.client_name
+ 		'SOAP supported'
+ 	end
 end

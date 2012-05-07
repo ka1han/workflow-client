@@ -38,9 +38,19 @@
 											= f.check_box :is_active, {:checked => 'checked'}
 									%dl
 										%dt
+											= f.label 'Stage Tickets'
+										%dd
+											= f.check_box :stage_tickets
+									%dl
+										%dt
 											= f.label('Module Name*', nil, {:style => "color:red"})
 										%dd
 											= f.text_field :module_name
+									%dl
+										%dt
+											= f.label 'Enable closed-loop ticketing'
+										%dd
+											= f.check_box :supports_updates
 									.buttons
 										.btn
 											= f.submit 'Create a test ticket', :id => 'create_test_ticket_btn'

@@ -42,7 +42,7 @@ class TicketConfigsController < ApplicationController
   #-------------------------------------------------------------------------------------------------------------------
   def edit
     @ticket_config = TicketConfig.find(params[:id])
-    @ticket_type = get_ticket_type(@ticket_config)
+    @ticket_type = get_ticket_type(@ticket_config.ticket_client_type)
     @ticket_mappings = @ticket_config.ticket_mapping
     @ticket_rules = @ticket_config.ticket_rule
 
@@ -145,7 +145,7 @@ class TicketConfigsController < ApplicationController
   #-------------------------------------------------------------------------------------------------------------------
   def create_test_ticket?
     if params[:commit] =~ /^Create/
-      msg = 'Error in ticketing module'
+      msg = nil
       ticket_auth_data = params[:ticket_config]
       case params[:ticket_client]
         when /jira3/i
@@ -160,13 +160,28 @@ class TicketConfigsController < ApplicationController
         when /nexpose/i
           raise 'Cannot create a test ticket with Nexpose'
         when /soap/i
-          @ticket_type = "SOAP supported"
+          wsdl = session[:wsdl_file_name]
+          load_wsdl_ops wsdl
+          selected_soap_op_id = params[:soap_ticket_op_id].chomp.to_i
+          op = @wsdl_id_op_map.rassoc(selected_soap_op_id)[0]
+          map = SOAPTicketConfig.parse_model_params(params, wsdl, op)
+          map[:operation] = map[:operation].split('|')[1]
+          soap_ticket_config = SOAPTicketConfig.new
+          soap_ticket_config.mappings = map
+          soap_client = GenericSoapClient.new map
+          soap_client.configure soap_ticket_config
+          resp = soap_client.create_ticket map
+          if resp[:status]
+            msg = true
+          else
+            msg = false
+          end
       end
 
       if !msg
-        flash[:error] = msg
+        flash[:error] = 'An error occurred while creating ticket.'
       else
-        flash[:notice] = 'Ticket created successfully'
+        flash[:notice] = 'Ticket created successfully.'
       end
 
       @show_ticket_client_div = true
