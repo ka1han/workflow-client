@@ -38,19 +38,19 @@
 											= f.check_box :is_active, {:checked => 'checked'}
 									%dl
 										%dt
+											= f.label 'Stage Tickets'
+										%dd
+											= f.check_box :stage_tickets
+									%dl
+										%dt
 											= f.label('Module Name*', nil, {:style => "color:red"})
 										%dd
 											= f.text_field :module_name
 									%dl
-										%dt{:style => "display:inline-block;"}
-											= f.label('Enable staged tickets', nil, {:style => "display:inline-block"})
-										%dd{:style => "display:inline-block"}
-											= f.check_box :stage_tickets, {:style => "display:inline-block"}
-									%dl
-										%dt{:style => "display:inline-block;"}
-											= f.label('Enable closed-loop ticketing', nil, {:style => "display:inline-block"})
-										%dd{:style => "display:inline-block; "}
-											= f.check_box :supports_updates, {:style => "display:inline-block"}
+										%dt
+											= f.label 'Enable closed-loop ticketing'
+										%dd
+											= f.check_box :supports_updates
 									.buttons
 										.btn
 											= f.submit 'Create a test ticket', :id => 'create_test_ticket_btn'
