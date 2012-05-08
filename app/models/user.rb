@@ -27,7 +27,7 @@ class User < ActiveRecord::Base
 
     return nil if !user
 
-    return user if User.encrypt(pass, user.salt) == user.password_hash
+    return user if User.hash(pass, user.salt) == user.password_hash
 
     return nil
   end
