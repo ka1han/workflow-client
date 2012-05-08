@@ -1,4 +1,10 @@
 WorkFlowEngineOnRails::Application.routes.draw do
+  get "edit_user/index"
+
+  get "create_user/index"
+
+  get "login/index"
+
   resources :ticket_mappings
 
   resources :ticket_rules
@@ -12,6 +18,9 @@ WorkFlowEngineOnRails::Application.routes.draw do
   match 'integer_property/edit' => 'integer_property#edit'
   match 'integer_property/update' => 'integer_property#update'
   match 'integer_property' => 'integer_property#index'
+  match 'login' => 'login#index'
+  match 'create_user' => 'create_user#index'
+  match 'edit_user' => 'edit_user#index'
 
   resources :modules
   resources :added_modules
