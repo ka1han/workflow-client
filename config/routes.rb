@@ -1,6 +1,11 @@
 WorkFlowEngineOnRails::Application.routes.draw do
-  resources :ticket_mappings
+  get "login/index"
 
+  get "authentication_console/new"
+  get "authentication_console/edit"
+  get "authentication_console/delete"
+
+  resources :ticket_mappings
   resources :ticket_rules
 
   match "nsc_configs/destroy" => "nsc_configs#destroy"
@@ -12,6 +17,13 @@ WorkFlowEngineOnRails::Application.routes.draw do
   match 'integer_property/edit' => 'integer_property#edit'
   match 'integer_property/update' => 'integer_property#update'
   match 'integer_property' => 'integer_property#index'
+  match 'authentication_console' => 'authentication_console#index'
+  match 'authentication_console/new' => 'authentication_console#new'
+  match 'authentication_console/edit' => 'authentication_console#edit'
+  match 'authentication_console/delete' => 'authentication_console#delete'
+
+  match 'login' => 'login#index'
+  match 'login/index' => 'login#index'
 
   resources :modules
   resources :added_modules
@@ -19,10 +31,9 @@ WorkFlowEngineOnRails::Application.routes.draw do
   resources :jira4_ticket_configs
 
   resources :ticket_configs
-
   resources :nsc_configs
-
   resources :main
+  resources :authentication_consoles, :path => 'authentication_console'
 
   get 'ticket_configs/:destroy/:id' => 'ticket_configs#destroy'
 

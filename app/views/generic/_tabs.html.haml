@@ -4,6 +4,9 @@
 		%li{ :class => "h #{class_for_tab(:main)}"}
 			= link_to '/main' do
 				%span.tab Log
+		%li{ :class => "h #{class_for_tab(:authentication_console)}"}
+			= link_to '/authentication_console' do
+				%span.tab Authentication Consoles
 		%li{ :class => "h #{class_for_tab(:added_modules)}"}
 			= link_to '/added_modules' do
 				%span.tab Output Modules

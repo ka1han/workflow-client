@@ -1,0 +1,44 @@
+%div{:id => "detailed", :class => "tab_panel"}
+  -if flash[:error]
+    .errors= flash[:error]
+
+- form_for @auth_console, :url => { :action => "new" } do |f|
+  - if @auth_console.errors.any?
+    #error_explanation
+      %h2
+        #{pluralize(@auth_console.errors.count, "error")} prohibited this Authentication Console from being saved:
+
+        %ul
+          - @auth_console.error.full_messages.each do |msg|
+            %li
+              #{msg}
+
+
+  .one_col_with_sidebar
+    %fieldset
+      %dl
+        %dt
+          = f.label :name, "Console Name"
+        %dd
+          = f.text_field :name, :autocomplete => :off
+      %dl
+        %dt
+          = f.label :host, "Host Address"
+        %dd
+          = f.text_field :host, :autocomplete => :off
+      %dl
+        %dt
+          = f.label :port, "Host Port"
+        %dd
+          = f.text_field :port, :autocomplete => :off
+      %dl
+        %dt
+          = f.label :description, "Host Description"
+        %dd
+          = f.text_field :description, :autocomplete => :off
+
+    .buttons
+      .btn
+        = f.submit 
+
+
