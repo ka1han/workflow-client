@@ -42,7 +42,7 @@ class TicketConfigsController < ApplicationController
   #-------------------------------------------------------------------------------------------------------------------
   def edit
     @ticket_config = TicketConfig.find(params[:id])
-    @ticket_type = get_ticket_type(@ticket_config.ticket_client_type)
+    @ticket_type = get_ticket_type(@ticket_config)
     @ticket_mappings = @ticket_config.ticket_mapping
     @ticket_rules = @ticket_config.ticket_rule
 

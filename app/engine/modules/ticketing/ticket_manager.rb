@@ -134,6 +134,7 @@ class TicketManager < Poller
         # There have been too many failed attempts to create this ticket.
         next if ticket_to_be_processed.pending_requeue
 
+        p ticket_to_be_processed.inspect
         ticket_data = ticket_to_be_processed.ticket_data
         ticket_id = ticket_to_be_processed.ticket_id
 
@@ -208,6 +209,9 @@ class TicketManager < Poller
         end
 
       rescue Exception => e
+
+        p e.message
+        p e.backtrace
         failed_attempts = ticket_to_be_processed.failed_attempt_count
         if failed_attempts > IntegerProperty.find_by_property_key('max_ticketing_attempts').property_value
           ticket_to_be_processed.failed_message = e.message
