@@ -6,8 +6,6 @@
         .stepInfo
           %table{:class => "list"}
             %thead{:class => "list-table-header"}
-              %th{:class => "checkbox"}
-                = check_box_tag "all_auth_consoles", 1, false, {:class => "master_checkbox"}
               %th Host
               %th Port
               %th Name
@@ -15,9 +13,7 @@
             - @auth_consoles.each do |console|
               %tr{:class => "#{cycle('odd', 'even')}"}
                 %td
-                  = check_box_tag("nexpose_console_ids[]", console.id, false, {:class => 'child_checkbox'})
-                %td
-                  = link_to(h(console.host), 'asdf')
+                  = console.host
                 %td
                   = console.port
                 %td
