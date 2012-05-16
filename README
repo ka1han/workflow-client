@@ -5,6 +5,14 @@ GOAL:
 #####
 To provide a method of integrating 3rd party applications with Rapid7 products.
 
+##############
+AUTHENTICATION
+##############
+When you start Nexflow for the first time, you will be required to create an Authentication Console.
+An authentication console is a Nexpose instance which is used to authenticate against.
+You can configure as may Authentication consoles as you would like.
+However, at least one auth console is required for nexflow to function.
+
 ##########
 TICKETING:
 ##########
