@@ -1,3 +1,5 @@
+#We require these as dependencies because we require YAML
+#to reconstitute these objects out of the DB in TicketManager
 require_dependency "app/models/ticket_config"
 require_dependency "app/models/ticket_rule"
 

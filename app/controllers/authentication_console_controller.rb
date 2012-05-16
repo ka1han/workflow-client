@@ -12,6 +12,7 @@ class AuthenticationConsoleController < ApplicationController
     if !params[:authentication_console]
       auth_consoles = AuthenticationConsole.all
 
+      #if auth consoles are empty, nexflow has been started for the first time
       if auth_consoles.empty?
         flash[:error] = "You need to configure an authentication console before using Nexflow."
       end
@@ -23,6 +24,8 @@ class AuthenticationConsoleController < ApplicationController
         format.xml { render :xml => @auth_console }
       end
     else
+
+      #try to create the new Auth Console, if not, flash the error
       if console = AuthenticationConsole.create(params[:authentication_console])
         redirect_to '/authentication_console'
       else

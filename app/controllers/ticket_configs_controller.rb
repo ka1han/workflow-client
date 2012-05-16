@@ -171,6 +171,8 @@ class TicketConfigsController < ApplicationController
           soap_ticket_config.mappings = map
           soap_client = GenericSoapClient.new map
           soap_client.configure soap_ticket_config
+
+          #if the ticket fails to be created, the error will be logged
           resp = soap_client.create_ticket map
           if resp[:status]
             msg = true
@@ -181,15 +183,16 @@ class TicketConfigsController < ApplicationController
 
       if !msg
         flash[:error] = 'An error occurred while creating ticket.'
-        flash[:notice] = nil
+        flash[:notice] = nil #reset if it had a previous message
       else
         flash[:notice] = 'Ticket created successfully.'
-        flash[:error] = nil
+        flash[:error] = nil #reset if an error occurred previously
       end
 
       @show_ticket_client_div = true
       load_defaults
       render '_form'
+
       return true
     else
       return false

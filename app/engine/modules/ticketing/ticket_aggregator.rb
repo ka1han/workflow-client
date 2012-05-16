@@ -106,6 +106,11 @@ class TicketAggregator
 
             TicketsToBeProcessed.create(
               :ticket_id => ticket_id,
+
+              #We convert the ticket data to YAML format and save it to the DB
+              #Ticketmanager reconstitutes this with YAML.load after pulling it back out
+              #ActiveRecord serialization/deserialization has a habit of breaking for some reason
+              #so we do this ourselves
               :ticket_data => YAML.dump(ticket),
               :staged => ticket_config.stage_tickets
             )

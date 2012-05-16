@@ -135,7 +135,10 @@ class TicketManager < Poller
         # There have been too many failed attempts to create this ticket.
         next if ticket_to_be_processed.pending_requeue
 
+        #the ticket data is stored in YAML format in the db
+        #ActiveRecord serialization is left wanting, so we do it ourself
         ticket_data = YAML.load(ticket_to_be_processed.ticket_data)
+
         ticket_id = ticket_to_be_processed.ticket_id
 
         # Initialize the ticket client
@@ -184,7 +187,7 @@ class TicketManager < Poller
         host = ticket_data[:nsc_host]
 
         if ticket_data[:proof]
-          # Decode the proof.
+          # Decode the proof
           ticket_data[:proof] = Util.process_db_input_array(ticket_data[:proof])
         end
 
@@ -201,7 +204,7 @@ class TicketManager < Poller
         end
 
         if !result[:status]
-          raise "Could not create or update ticket: " + result[:error]
+          raise "Could not #{ticket_data[:ticket_op].to_s} ticket: " + result[:error]
         else
           # Add ticket as already created
           TicketsCreated.create(:ticket_id => ticket_id, :remote_key => result[:remote_key])
@@ -209,6 +212,8 @@ class TicketManager < Poller
         end
 
       rescue Exception => e
+
+        Rails.logger.warn e.message
         failed_attempts = ticket_to_be_processed.failed_attempt_count
         if failed_attempts > IntegerProperty.find_by_property_key('max_ticketing_attempts').property_value
           ticket_to_be_processed.failed_message = e.message
