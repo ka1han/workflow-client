@@ -7,6 +7,8 @@
 # Christopher Lee christopher_lee@rapid7.com
 #-----------------------------------------------------------------------------------------------------------------------
 
+require 'yaml'
+
 class TicketAggregator
 
   public
@@ -104,7 +106,7 @@ class TicketAggregator
 
             TicketsToBeProcessed.create(
               :ticket_id => ticket_id,
-              :ticket_data => ticket,
+              :ticket_data => YAML.dump(ticket),
               :staged => ticket_config.stage_tickets
             )
           end

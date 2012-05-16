@@ -12,8 +12,29 @@ Currently a module is implemented which allows users to setup
 Nexpose as an input source and a ticketing software as an output,
 such as: JIRA, Nexpose (Nexpose ticketing) and SOAP supported endpoints.
 
+#######
+SCOPES:
+#######
+Current supported scopes are:
+----------------------------------------
+Ticket per Vulnerability per Device
+Ticket per Vulnerability
+Ticket per Device
+
+Currently, closed-loop ticketing is supported for JIRA 4 for the Ticket per Vuln per Device scope. 
+Closed-loop ticketing is the ability to find a vulnerability on the networkin during a scan,
+then check later scans to see if the vulnerability has been fixed and resolve the ticket created
+from a prior scan.
+
+##########
+SOAP WSDL:
+##########
+Nexflow has the ability to consume a generic SOAP WSDL and create post tickets with defined tokens.
+This is the Generic SOAP ticket module option when creating your output module.
+The tokens are replaced with the ticket data from scans prior to being posted to the SOAP endpoint.
+
 #############################
 STARTING THE WORKFLOW ENGINE:
 #############################
-1. Download and run the install.sh file (NOTE: Supported on Ubuntu 10.04 only)
+1. Download and run the install_stable.sh file (NOTE: Supported on Ubuntu 10.04/12.04 only)
 2. From the script directory run: >rails server webrick -b 127.0.0.1 -p <port> -e development

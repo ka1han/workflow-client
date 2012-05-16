@@ -160,6 +160,7 @@ class TicketConfigsController < ApplicationController
         when /nexpose/i
           raise 'Cannot create a test ticket with Nexpose'
         when /soap/i
+          @ticket_type = 'SOAP supported'
           wsdl = session[:wsdl_file_name]
           load_wsdl_ops wsdl
           selected_soap_op_id = params[:soap_ticket_op_id].chomp.to_i
@@ -180,16 +181,18 @@ class TicketConfigsController < ApplicationController
 
       if !msg
         flash[:error] = 'An error occurred while creating ticket.'
+        flash[:notice] = nil
       else
         flash[:notice] = 'Ticket created successfully.'
+        flash[:error] = nil
       end
 
       @show_ticket_client_div = true
       load_defaults
-      render :action => 'new'
-      true
+      render '_form'
+      return true
     else
-      false
+      return false
     end
   end
 

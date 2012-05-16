@@ -4,6 +4,7 @@ class MainController < ApplicationController
   #
   #
   def index
+
     logger = LogManager.instance
     log_array = logger.get_log_body
     @logs = ""

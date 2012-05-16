@@ -1,0 +1,28 @@
+#auth_consoles
+  #overview
+    %div{:id => "detailed", :class => "tab_panel"}
+      =form_tag '/authentication_console/delete', :method => :delete, :name => 'auth_console_form' do
+        %h3 Added Consoles
+        .stepInfo
+          %table{:class => "list"}
+            %thead{:class => "list-table-header"}
+              %th Host
+              %th Port
+              %th Name
+              %th Description
+            - @auth_consoles.each do |console|
+              %tr{:class => "#{cycle('odd', 'even')}"}
+                %td
+                  = console.host
+                %td
+                  = console.port
+                %td
+                  = console.name
+                %td
+                  = console.description
+        %div{:class => "stepLead", :style => "width: 100%;"} 
+          .step
+            .btnRow
+              %div{:class => "btn"}
+                = link_to "Add a new Authentication Console", '/authentication_console/new', :class => "new"
+

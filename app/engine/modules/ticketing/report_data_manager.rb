@@ -48,6 +48,9 @@ class ReportDataManager
 
     data = adhoc_report_generator.generate
 
+    # Kludge by bperry needs to be fixed.
+    # Keeps generating reports until it 
+    # is no longer empty.
     while data.to_s.length < 91
       select(nil, nil, nil, 5)
       data = adhoc_report_generator.generate
