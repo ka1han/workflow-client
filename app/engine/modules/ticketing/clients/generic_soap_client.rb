@@ -58,23 +58,12 @@ class GenericSoapClient < TicketClient
       return ret
     rescue Exception => e
 
-      ::File.open('log/soap.log', 'a+') do |f|
-        f.write(e.message)
-      end
-
+      Rails.logger.warn e.message
       ret = {}
       ret[:status] = false
       ret[:error] = e.message
 
       return ret
     end
-  end
-
-  def parse_model_params parms
-    p parms.inspect
-  end
-
-  def create_test_ticket
-
   end
 end
