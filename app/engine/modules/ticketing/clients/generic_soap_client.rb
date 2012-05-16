@@ -57,6 +57,11 @@ class GenericSoapClient < TicketClient
 
       return ret
     rescue Exception => e
+
+      ::File.open('log/soap.log', 'a+') do |f|
+        f.write(e.message)
+      end
+
       ret = {}
       ret[:status] = false
       ret[:error] = e.message

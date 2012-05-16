@@ -1,5 +1,5 @@
 class TicketsToBeProcessed < ActiveRecord::Base
-	serialize :ticket_data, Hash
+	#serialize :ticket_data, Hash
 
   #---------------------------------------------------------------------------------------------------------------------
   # Used to determine if there are currently any staged tickets.
