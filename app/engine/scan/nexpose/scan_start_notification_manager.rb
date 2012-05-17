@@ -46,6 +46,7 @@ class ScanStartNotificationManager < Poller
 
               @running_scans[scan_key] = scan_info
               @logger.add_log_message "[+] Scan with ID #{scan_id} started for site #{scan_activity[:site_id]} on \"#{host}\" "
+              Rails.logger.info "[+] Scan with ID #{scan_id} started for site #{scan_activity[:site_id]} on \"#{host}\" "
               changed
               notify_observers scan_info
             end

@@ -14,6 +14,8 @@ class LoginController < ApplicationController
       nsc = Nexpose::Connection.new(auth_console.host, user, pass, auth_console.port)
 
       begin
+        #nsc.login will throw an exception if authentication fails
+        #we will catch this below and flash an error
         cookies[:authenticated] = nsc.login
         redirect_to '/'
       rescue

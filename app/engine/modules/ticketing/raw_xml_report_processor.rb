@@ -72,7 +72,9 @@ class RawXMLReportProcessor
           VulnInfo.create(:vuln_id => id, :vuln_data => vuln_input_data)
         rescue Exception => e
           @logger.add_log_message "[!] vulnid: #{id}, vuln data: #{vuln_input_data.inspect}"
+          Rails.logger.warn "[!] vulnid: #{id}, vuln data: #{vuln_input_data.inspect}"
           @logger.add_log_message "[!] Error in populating vuln map: #{e.backtrace}"
+          Rails.logger.warn "[!] Error in populating vuln map: #{e.backtrace}"
         end
       end
     end

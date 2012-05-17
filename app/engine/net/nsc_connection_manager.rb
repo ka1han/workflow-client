@@ -28,8 +28,10 @@ class NSCConnectionManager
 
     if not nsc_configs or nsc_configs.empty?
       @logger.add_log_message "[!] There are no configured NSC connections"
+      Rails.logger.warn "[!] There are no configured NSC connections"
     elsif not added_connection
       @logger.add_log_message "[!] There are no active NSC connections"
+      Rails.logger.warn "[!] There are no active NSC connections"
     end
   end
 
@@ -48,8 +50,10 @@ class NSCConnectionManager
   def remove_connection conn
     @nsc_connections.delete conn[:host]
     @logger.add_log_message "[!] Removed NSC Config for host \"#{conn[:host]}\""
+    Rails.logger.warn "[!] Removed NSC Config for host \"#{conn[:host]}\""
     if @nsc_connections.empty?
       @logger.add_log_message "[-] There are no configured NSC connections!"
+      Rails.logger.info "[-] There are no configured NSC connections!"
     end
   end
 
@@ -62,6 +66,7 @@ class NSCConnectionManager
       add_connection conn
     end
     @logger.add_log_message "[*] Updated NSC connection for host \"#{conn[:host]}\""
+    Rails.logger.info "[*] Updated NSC connection for host \"#{conn[:host]}\""
   end
 
   #
@@ -73,8 +78,10 @@ class NSCConnectionManager
       host = conn_detail[:host].to_s.chomp
       @nsc_connections[host] = get_nexpose_connection conn_detail
       @logger.add_log_message "[*] Added ACTIVE NSC connection for host \"#{conn_detail[:host]}\""
+      Rails.logger.info "[*] Added ACTIVE NSC connection for host \"#{conn_detail[:host]}\""
     else
       @logger.add_log_message "[-] Added NON-ACTIVE NSC connection for host \"#{conn_detail[:host]}\""
+      Rails.logger.info "[-] Added NON-ACTIVE NSC connection for host \"#{conn_detail[:host]}\""
     end
 
   end
@@ -187,6 +194,7 @@ class NexposeConnectionWrapper
           @failed_login_host_array.delete(@nexpose_connection.host)
 
           @logger.add_log_message "[!] Login to \"#{@nexpose_connection.host}\" successful"
+          Rails.logger.info  "[!] Login to \"#{@nexpose_connection.host}\" successful"
         rescue Exception
 
           # If the failed attempt has already been logged, don't log again until a successfull login.
@@ -194,6 +202,7 @@ class NexposeConnectionWrapper
           host = @nexpose_connection.host
           if not @failed_login_host_array.include?(host)
             @logger.add_log_message "[-] Login to \"#{@nexpose_connection.host}\" has failed!"
+            Rails.logger.warn "[-] Login to \"#{@nexpose_connection.host}\" has failed!"
             @failed_login_host_array << host
           end
         end
@@ -212,6 +221,7 @@ class NexposeConnectionWrapper
       else
         if @log_errors
           @logger.add_log_message "[-] API call to #{method_name} has failed!"
+          Rails.logger.warn "[-] API call to #{method_name} has failed!"
         end
       end
     end

@@ -52,6 +52,7 @@ class ScanManager < Poller
           # Removed scans that are in a static state
           if status =~ /finished/ or status =~ /stopped/ or status =~ /paused/
             @logger.add_log_message "[-] Scan #{scan_id} is #{status}!"
+            Rails.logger.info  "[-] Scan #{scan_id} is #{status}!"
             @scans_observed[host].delete scan_id
           end
         end
@@ -83,6 +84,7 @@ class ScanManager < Poller
   #
   def add_scan_observed scan_id, host
     @logger.add_log_message "[+] Observing scan \"#{scan_id}\" at \"#{host}\""
+    Rails.logger.info "[+] Observing scan \"#{scan_id}\" at \"#{host}\""
     if @scans_observed[host]
       @scans_observed[host] << scan_id
     else

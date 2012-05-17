@@ -131,8 +131,7 @@ class ReportDataManager
       begin
         @nsc_connection.report_config_delete(report.config_id)
       rescue
-        # TODO: Add log message
-        # "Unable to remove report config, please removed config manually #{report.config_id}"
+        Rails.logger.warn "Unable to remove report config, please removed config manually #{report.config_id}"
       end
     end
 

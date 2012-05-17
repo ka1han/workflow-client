@@ -93,8 +93,10 @@ class ScanSummariesManager
         end_time = Util.parse_utc_time(summaries["endTime"])
 
         unless start_time || end_time
-          @logger..add_log_message("[-] There was a problem parsing scan times: start: #{summaries['startTime']}" +
+          @logger.add_log_message("[-] There was a problem parsing scan times: start: #{summaries['startTime']}" +
                                        " end:  #{summaries['endTime']}")
+          Rails.logger.warn ("[-] There was a problem parsing scan times: start: #{summaries['startTime']}" +
+                                        " end:  #{summaries['endTime']}")
           return false
         end
         ScanSummary.create(:host => host, :scan_id => scan_id, :site_id => summaries["site-id"],
