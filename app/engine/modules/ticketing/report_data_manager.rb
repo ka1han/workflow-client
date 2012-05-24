@@ -20,20 +20,20 @@ class ReportDataManager
   #---------------------------------------------------------------------------------------------------------------------
   def get_raw_xml_for_scan(scan_id)
     data = nil
-    ad_hoc_retrieved = false
+    #ad_hoc_retrieved = false
 
-    while !ad_hoc_retrieved
-      begin
-        data = get_adhoc_for_scan(scan_id)
-        ad_hoc_retrieved = true
-      rescue Exception => e
-        p e.message
-        p e.backtrace
-      end
-    end
+    #while !ad_hoc_retrieved
+    #  begin
+    #    data = get_adhoc_for_scan(scan_id)
+    #    ad_hoc_retrieved = true
+    #  rescue Exception => e
+    #    p e.message
+    #    p e.backtrace
+    #  end
+    #end
 
     # If adhoc fails fall back on disk generation.
-    #data = get_on_disk_report_for_scan(scan_id) 
+    data = get_on_disk_report_for_scan(scan_id) 
     data
   end
 

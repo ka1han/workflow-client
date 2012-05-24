@@ -9,7 +9,7 @@ gem 'haml'
 
 gem 'rake', '0.9.2.2'
 
-gem 'nexpose', '>= 0.0.8'
+gem 'nexpose', '>= 0.0.95'
 
 gem 'actionpack', '>= 3.0.7'
 
