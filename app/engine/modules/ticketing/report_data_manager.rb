@@ -33,7 +33,9 @@ class ReportDataManager
     #end
 
     # If adhoc fails fall back on disk generation.
+    p "getting report"
     data = get_on_disk_report_for_scan(scan_id) 
+    p "Length: " + data.to_s.length.to_s
     data
   end
 
@@ -61,17 +63,17 @@ class ReportDataManager
   # Gets the raw xml by generating the report on disk then pulling it across
   #---------------------------------------------------------------------------------------------------------------------
   def get_on_disk_report_for_scan(scan_id)
-
     data = nil
     report_config_name = "nexflow_report_config_#{scan_id}"
     report = Nexpose::ReportConfig.new(@nsc_connection)
     report.set_name(report_config_name)
     report.addFilter("scan", scan_id)
+    report.set_template_id("audit-report")
     report.set_storeOnServer(1)
     report.set_format("raw-xml-v2")
 
     begin
-      resp = report.saveReport()
+      resp = report.saveReport
     rescue Exception => e
       p e.message
       p e.backtrace
@@ -79,10 +81,9 @@ class ReportDataManager
 
     begin
       url = nil
-
       while !url
         url = @nsc_connection.report_last(report.config_id)
-        sleep(2)
+        sleep(60) # this is stupid, we don't know when the report is actually done 
       end
 
       last_data_file_size = 0
@@ -93,6 +94,11 @@ class ReportDataManager
         while !data
           begin
             data = @nsc_connection.download(url)
+
+            while data.length < 131 #130 is an empty report
+              select(nil, nil, nil, 30)
+              data = @nsc_connection.download(url)
+            end
           rescue Exception => e
             p e.message
             p e.backtrace
