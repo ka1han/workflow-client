@@ -20,10 +20,11 @@ class ReportDataManager
   #---------------------------------------------------------------------------------------------------------------------
   def get_raw_xml_for_scan(scan_id)
     data = nil
-    ad_hoc_retrieved = false
 
     data = get_adhoc_for_scan(scan_id)
 
+    #check to see if we have an empty report
+    #if so, generate an ondisk report instead
     if data.to_s.length < 131
       data = get_on_disk_report_for_scan(scan_id) 
     end
@@ -52,7 +53,6 @@ class ReportDataManager
     report = Nexpose::ReportConfig.new(@nsc_connection)
     report.set_name(report_config_name)
     report.addFilter("scan", scan_id)
-    report.set_template_id("audit-report")
     report.set_storeOnServer(1)
     report.set_format("raw-xml-v2")
 
