@@ -80,13 +80,13 @@ bundle update || exit 255
 
 cp config/database.yml.bak config/database.yml || exit 255
 
-echo "What is the postgresql host?"
+echo "What is the postgresql host? (127.0.0.1 if you don't know)"
 read PGHOST
 
-echo "What is the postgresql port?"
+echo "What is the postgresql port? (5433 if you don't know)"
 read PGPORT
 
-echo "What is the postgresql user?"
+echo "What is the postgresql user? (postgres if you don't know)"
 read PGUSER
 
 echo "What is the postgresql password?"
