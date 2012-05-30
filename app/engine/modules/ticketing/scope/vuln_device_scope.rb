@@ -128,7 +128,9 @@ class VulnDeviceScope
     res
   rescue Exception => e
     LogManager.instance.add_log_message "[!] Error in Building Ticket Data: #{e.message}"
+    Rails.logger.warn  "[!] Error in Building Ticket Data: #{e.message}"
     LogManager.instance.add_log_message "[!] #{e.backtrace}"
+    Rails.logger.warn "[!] #{e.backtrace}"
   end
 
   #---------------------------------------------------------------------------------------------------------------------

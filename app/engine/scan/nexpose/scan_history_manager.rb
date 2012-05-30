@@ -63,6 +63,7 @@ class ScanHistoryManager < Poller
     polling_value = IntegerProperty.find_by_property_key('scan_history_polling').property_value
     @time_range = Time.now - (ScanHistoryTimeFrame.find_by_id(time_frame_id).multiplicate * polling_value)
     @logger.add_log_message "[*] Scans will be processed from #{@time_range.to_s}"
+    Rails.logger.info "[*] Scans will be processed from #{@time_range.to_s}"
   end
 
 end

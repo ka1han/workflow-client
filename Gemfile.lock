@@ -35,9 +35,9 @@ GEM
     erubis (2.6.6)
       abstract (>= 1.0.0)
     eventmachine (0.12.10)
-    gyoku (0.4.4)
+    gyoku (0.4.5)
       builder (>= 2.1.2)
-    haml (3.1.5)
+    haml (3.1.6)
     handsoap (1.1.8)
     httpclient (2.2.5)
     httpi (0.9.7)
@@ -53,7 +53,7 @@ GEM
       mime-types (~> 1.16)
       treetop (~> 1.4.8)
     mime-types (1.18)
-    nexpose (0.0.94)
+    nexpose (0.0.96)
       librex (>= 0.0.32)
       rex (>= 1.0.2)
     nokogiri (1.5.2)
@@ -94,7 +94,7 @@ GEM
       polyglot
       polyglot (>= 0.3.1)
     tzinfo (0.3.33)
-    wasabi (2.1.0)
+    wasabi (2.1.1)
       nokogiri (>= 1.4.0)
 
 PLATFORMS
@@ -108,7 +108,7 @@ DEPENDENCIES
   httpi (>= 0.9.4)
   jiraSOAP (>= 0.9.0)
   librex (>= 0.0.35)
-  nexpose (>= 0.0.8)
+  nexpose (>= 0.0.95)
   pg (>= 0.11.0)
   rack-mount (>= 0.6.14)
   rack-test (>= 0.5.7)

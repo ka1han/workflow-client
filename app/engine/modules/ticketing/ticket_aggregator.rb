@@ -131,6 +131,8 @@ class TicketAggregator
     @logger.add_log_message "[!] Error in build and storage of tickets: #{e.message}"
     @logger.add_log_message "#{e.backtrace}"
 
+    Rails.logger.warn "[!] Error in build and storage of tickets: #{e.message}"
+    Rails.logger.warn "#{e.backtrace}"
     # In case of an exception move this ticket to the back of the queue.
     TicketManager.instance.get_ticket_processing_queue.delete(ticket_params)
     TicketManager.instance.get_ticket_processing_queue << ticket_params

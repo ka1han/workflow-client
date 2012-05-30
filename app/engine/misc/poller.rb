@@ -18,6 +18,7 @@ class Poller
     @logger = LogManager.instance
     operation = proc {
       @logger.add_log_message "[*] #{poller_thread_name} poller thread executing ..."
+      Rails.logger.info "[*] #{poller_thread_name} poller thread executing ..."
       while true do
         begin
           update_poller_frequency(period_key, poller_thread_name)
@@ -27,10 +28,12 @@ class Poller
         # Don't allow poller to die
         rescue Exception => e
           @logger.add_log_message "[!] Error in #{poller_thread_name}: #{e.message}"
+          Rails.logger.warn "[!] Error in #{poller_thread_name}: #{e.message}"
         end
       end
 
       @logger.add_log_message "[-] #{poller_thread_name} poller thread exiting ..."
+      Rails.logger.info "[-] #{poller_thread_name} poller thread exiting ..."
     }
 
     EM.defer operation

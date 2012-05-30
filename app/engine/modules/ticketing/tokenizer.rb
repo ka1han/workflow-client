@@ -38,7 +38,7 @@ class Tokenizer
               if v.index(token_key)
 
                 #makes sense! I promise
-                #replace the token in the string with the ticket data if the ticket data exists
+                #replace the token in the string in-place with the ticket data if the ticket data exists
                 #otherwise replace it with an empty string
                 tokenized_ticket[key][k].gsub!(token_key, ticket_data[tmp[0]][:"#{tmp[1]}"] || '')
               end

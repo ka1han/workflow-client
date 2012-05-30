@@ -1,4 +1,4 @@
-#This class create a ticket for each vuln found by the nexpose engine
+#This class creates a ticket for each vuln found by the nexpose engine
 #Each ticket will contain every asset vulnerable to the given vuln
 class VulnScope
 
