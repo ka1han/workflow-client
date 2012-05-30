@@ -70,6 +70,9 @@ cd /opt/nexflow || exit 255
 
 git checkout stable
 
+mkdir log
+touch log/development.log
+
 bundle install || exit 255
 
 #not always needed, but have needed in the past. Can't hurt.
