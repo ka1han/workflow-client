@@ -2,7 +2,7 @@
 <div style="margin-left: auto; margin-right: auto; width: 400px; height: 200px;">
   <%= form_tag(:url => {:controller => :login, :action => :index}) do %>
     <div style="display:inline-block; width: 150px;"><b>Username:</b></div><%= text_field(:user, :username, :size => 20) %><br />
-    <div style="display:inline-block; width: 150px;"><b>Password:</b></div><%= text_field(:user, :password, :size => 20) %><br />
+    <div style="display:inline-block; width: 150px;"><b>Password:</b></div><%= password_field(:user, :password, :size => 20) %><br />
     <div style="display:inline-block; width: 150px;"><b>Authentication Console:</b></div><%= collection_select("auth_console", "id", @auth_consoles, :id, :name) %>
     <%= button_to 'Login' %>
   <% end %>

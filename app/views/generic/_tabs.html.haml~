@@ -1,0 +1,25 @@
+
+#project_nav
+	%ul.nav_tabs
+		%li{ :class => "h #{class_for_tab(:main)}"}
+			= link_to '/main' do
+				%span.tab Log
+		%li{ :class => "h #{class_for_tab(:authentication_console)}"}
+			= link_to '/authentication_console' do
+				%span.tab Authentication Consoles
+		%li{ :class => "h #{class_for_tab(:added_modules)}"}
+			= link_to '/added_modules' do
+				%span.tab Output Modules
+		%li{ :class => "h #{class_for_tab(:nsc_configs)}"}
+			= link_to '/nsc_configs' do
+        %span.tab Input Modules
+    %li{ :class => "h #{class_for_tab(:scan_import)}"}
+      = link_to '/import' do
+        %span.tab Import
+		%li{ :class => "h #{class_for_tab(:integer_property)}"}
+			= link_to '/integer_property' do
+				%span.tab Configuration
+		- if TicketsToBeProcessed.has_staged_tickets?
+			%li{ :class => "h #{class_for_tab(:staged_tickets)}"}
+				= link_to '/staged_tickets' do
+					%span.tab Staged Tickets
