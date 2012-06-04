@@ -21,6 +21,8 @@ WorkFlowEngineOnRails::Application.routes.draw do
   match 'authentication_console/new' => 'authentication_console#new'
   match 'authentication_console/edit' => 'authentication_console#edit'
   match 'authentication_console/delete' => 'authentication_console#delete'
+  match 'manual_imports/nexpose_imports' => 'manual_imports/nexpose_imports#index.html'
+  match 'manual_imports/nexpose_imports/upload' => 'manual_imports/nexpose_imports#upload'
 
   match 'login' => 'login#index'
   match 'login/index' => 'login#index'

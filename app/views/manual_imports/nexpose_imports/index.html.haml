@@ -1,0 +1,15 @@
+#overview
+	%div{:id => "detailed", :class => "tab_panel"}
+		%div{:class => "stepLead", :style => "width: 100%;"}
+			.step
+				%h3 Import Nexpose Report
+				- form_tag('/manual_imports/nexpose_imports/upload', :multipart => true) do
+					%fieldset
+						%dl
+							%dt
+								= label_tag 'Select Nexpose Report'
+							%dd
+								= file_field_tag :nexpose_report, :accept => 'text/xml'
+							.buttons
+								.btn
+									= submit_tag 'Upload Report'
