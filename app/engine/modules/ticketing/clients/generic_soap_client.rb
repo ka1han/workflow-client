@@ -21,28 +21,25 @@ class GenericSoapClient < TicketClient
     end
 
     @parser = WSDLParser.parse @client.wsdl.xml
+    service = config.mappings[:service]
+    op = config.mappings[:operation]
 
-    op = config.mappings[:operation].split '|'
+    @parser.bindings.each do |binding|
+      next if not binding["name"] == service
 
-    #this is brittle
-    #we need to figure out what our endpoint is
-    #so we loop through what we have, find our operation
-    #and then look at the children to find the endpoint
-    @parser.services.each do |service|
-      service["children"].each do |child|
-        next if child["name"] != op[0]
-        child["children"].each do |c|
-          if c["name"] =~ /address/
-            @endpoint = c["location"]
-          end
+      binding["children"].each do |child|
+        next if not child["name"] == op
+
+        child["children"].each do |action|
+          next unless action["element_name"] =~ /operation/
+          @action = action["soapAction"]
         end
       end
     end
 
-    @target_namespace = @parser.wsdl_definitions["targetNamespace"]
-
-    @wsdl_util = WSDLUtil.new @parser
-    @actions = @wsdl_util.get_soap_input_operations true
+    #@target_namespace = @parser.wsdl_definitions["targetNamespace"]
+    #@wsdl_util = WSDLUtil.new @parser
+    #@actions = @wsdl_util.get_soap_input_operations true
   end
 
   def create_ticket ticket_data 
@@ -50,12 +47,13 @@ class GenericSoapClient < TicketClient
     #we need a body before continuing
     raise "No ticket body" if not ticket_data[:body]
 
-    begin
+    action = @action
 
+    begin
       #this might throw an exception if the soap request fails
       #so we catch the exception below, log it, then return the exception
       resp = @client.request :urn, ticket_data[:operation] do
-        http.headers["SOAPAction"] = @endpoint
+        http.headers["SOAPAction"] = action
         soap.input = [ "urn:" + ticket_data[:operation], {} ]
         soap.header = ticket_data[:headers] || {} #we don't need headers all the time
         soap.body = ticket_data[:body]

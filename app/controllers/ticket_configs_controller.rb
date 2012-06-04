@@ -166,6 +166,7 @@ class TicketConfigsController < ApplicationController
           selected_soap_op_id = params[:soap_ticket_op_id].chomp.to_i
           op = @wsdl_id_op_map.rassoc(selected_soap_op_id)[0]
           map = SOAPTicketConfig.parse_model_params(params, wsdl, op)
+          map[:service] = map[:operation].split('|')[0]
           map[:operation] = map[:operation].split('|')[1]
           soap_ticket_config = SOAPTicketConfig.new
           soap_ticket_config.mappings = map

@@ -1,0 +1,164 @@
+%div{:class => 'ticket_client_config', :id => 'jira3'}
+	= render 'authentication', :parent_client => 'jira3_config', :auth_data => @jira3_ticket_config
+	%dl
+		%dt
+			= label_tag('jira3_config_project_id', 'Project ID*', {:style => "color:red"})
+		%dd
+			= text_field_tag 'jira3_config[project_id]', (@jira3_ticket_config ? @jira3_ticket_config.project_id : '')
+
+	%dl
+		%dt
+			= label_tag('Priority ID*', nil, {:style => "color:red"})
+		%dd
+			= text_field_tag 'jira3_config[priority_id]', (@jira3_ticket_config ? @jira3_ticket_config.priority_id : '')
+
+	%dl
+		%dt
+			= label_tag('Assignee ID*', nil, {:style => "color:red"})
+		%dd
+			= text_field_tag 'jira3_config[assignee_id]', (@jira3_ticket_config ? @jira3_ticket_config.assignee_id : '')
+
+	%dl
+		%dt
+			= label_tag('Default Reporter*', nil, {:style => "color:red"})
+		%dd
+			= text_field_tag 'jira3_config[default_reporter]', (@jira3_ticket_config ? @jira3_ticket_config.default_reporter : '')
+
+	%dl
+		%dt
+			= label_tag('Issue Type ID*', nil, {:style => "color:red"})
+		%dd
+			= text_field_tag 'jira3_config[issue_type_id]', (@jira3_ticket_config ? @jira3_ticket_config.issue_type_id : '')
+
+%div{:class => 'ticket_client_config', :id => 'jira4'}
+	= render 'authentication', :parent_client => 'jira4_config', :auth_data => @jira4_ticket_config
+	%dl
+		%dt
+			= label_tag('Default assignee*', nil, {:style => "color:red"})
+		%dd
+			= text_field_tag 'jira4_config[assignee]', (@jira4_ticket_config ? @jira4_ticket_config.assignee : '')
+	%dl
+		%dt
+			= label_tag('Default reporter*', nil, {:style => "color:red"})
+		%dd
+			= text_field_tag 'jira4_config[reporter]', (@jira4_ticket_config ? @jira4_ticket_config.reporter : '')
+	%dl
+		%dt
+			= label_tag('Issue Type ID*', nil, {:style => "color:red"})
+		%dd
+			= text_field_tag 'jira4_config[issue_id]', (@jira4_ticket_config ? @jira4_ticket_config.issue_id : '')
+	%dl
+		%dt
+			= label_tag('Project name*', nil, {:style => "color:red"})
+		%dd
+			= text_field_tag 'jira4_config[project_name]', (@jira4_ticket_config ? @jira4_ticket_config.project_name : '')
+	%dl
+		%dt
+			= label_tag('Default priority ID*', nil, {:style => "color:red"})
+		%dd
+			= text_field_tag 'jira4_config[priority_id]', (@jira4_ticket_config ? @jira4_ticket_config.priority_id : '')
+
+
+%div{:class => 'ticket_client_config', :id => 'nexpose'}
+	- if NscConfig.all and not NscConfig.all.empty?
+		%dl
+			%dt
+				= label_tag 'Select NeXpose Client'
+			%dd
+				=collection_select :nexpose_config, :nexpose_client_id, NscConfig.all, :id, :host
+		%dl
+			%dt
+				= label_tag 'Select default user'
+			%dd
+				=collection_select :nexpose_config, :nexpose_default_user, @user_list, :user_name, :user_name
+	- else
+		%p
+			There are no configured NeXpose clients.
+
+%div{:class => 'ticket_client_config', :id => 'soap'}
+	- form_for(@ticket_config, :html => {:multipart => true}) do |soap_form|
+		%fieldset
+			%legend{:align => "center"}
+				%b Data Import
+			%dl
+				%dt
+					= soap_form.label 'Select WSDL file'
+				%dd
+					= soap_form.file_field :wsdl
+				.buttons
+					.btn
+						= soap_form.submit 'Parse WSDL'
+
+		- if (!@wsdl_operations.nil? && !@wsdl_operations.empty?)
+			= render 'dynamic_field_info'
+
+			%fieldset
+				%legend{:align => "center"}
+					%b SOAP Operation
+				= label_tag 'Select the operation (Port Type|Operation):'
+				= select nil, "soap_ticket_op_id", @wsdl_id_op_map, {:selected => @selected_soap_op_id}, {:id => "wsdl_operations"}
+				%h4
+					* - Required input
+				- index = -1
+				- @wsdl_operations.each do |port_type, headers_and_ops|
+					- headers_and_ops['operations'].each do |operation, inputs|
+						- index = index + 1
+						- proper_op_name = port_type.to_s + "|" + operation.to_s
+						%div{:id => "wsdl_op_#{index}"}
+							%fieldset
+								%legend{:align => "center"}
+									%b Header Input
+								- unless @uses_header_auth
+									= render "header_authentication_info"
+									= label_tag "Use Basic Authentication"
+									= check_box_tag :use_basic_auth_checkbox, "1", false, {:using_header_auth => @uses_header_auth}
+
+								%div{:id => "soap_headers"}
+									- if inputs['headers'] && !(inputs['headers'].length < 2)
+										- headers = get_headers(inputs['headers'], @wsdl_operations[port_type]['headers'])
+										- headers.each do |key, value|
+											- value.each do |header_name, header_inputs|
+												%fieldset
+													%legend{:align => "center"}
+														%b #{header_name}
+													- header_inputs.each do |input|
+														%dl
+															%dt
+																- if is_required_input?(input)
+																	= label_tag(input['name'] + '*' + "  #{get_input_type(input)}", nil, {:style => "color:red"})
+																- else
+																	= label_tag(input['name']) + "  #{get_input_type(input)}"
+															%dd
+																- is_hash = input['type'].instance_of? Hash
+																- is_password_field = is_sensitive_field?(input['name'])
+																- if is_hash
+																	= select "soap_config_header_#{index}[#{input['name']}]", nil, input['type']['values'], {:selected => get_value(input['name'], proper_op_name, @operation, @input_map, true)}
+																- elsif is_password_field
+																	= password_field_tag "soap_config_header_#{index}[#{input['name']}]", get_value(input['name'], proper_op_name, @operation, @input_map, true)
+																- else
+																	= text_field_tag "soap_config_header_#{index}[#{input['name']}]", get_value(input['name'], proper_op_name, @operation, @input_map, true)
+
+							- if has_operations?(inputs)
+								%fieldset
+									%legend{:align => "center"}
+										%b Body Input
+									- inputs.each do |key, value|
+										- if 'headers'.eql? key
+											- next
+										- value.each do |input|
+											%dl
+												%dt
+													- if is_required_input?(input)
+														= label_tag(input['name'] + '*' + "  #{get_input_type(input)}", nil, {:style => "color:red"})
+													- else
+														= label_tag(input['name']) + "  #{get_input_type(input)}"
+												%dd
+													- is_hash = input['type'].instance_of? Hash
+													- is_password_field = is_sensitive_field?(input['name'])
+													- if is_hash
+														= select "soap_config_#{index}[#{input['name']}]", nil, input['type']['values'], {:selected => get_value(input['name'], proper_op_name, @operation, @input_map, false)}
+													- elsif is_password_field
+														= password_field_tag "soap_config_#{index}[#{input['name']}]", get_value(input['name'], proper_op_name, @operation, @input_map, false)
+													- else
+														- p  "Params: " + input['name']
+                            = text_field_tag "soap_config_#{index}[#{input['name']}]", get_value(input['name'], proper_op_name, @operation, @input_map, false)	
