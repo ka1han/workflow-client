@@ -44,7 +44,7 @@ class VulnScope
         vulns[id][:hosts]            << host_ticket_data
         vulns[id][:client_connector] ||= client_connector
         vulns[id][:formatter]        ||= formatter
-        vulns[id][:module_name]      << ticket_config.module_name
+        vulns[id][:module_name]      ||= ticket_config.module_name
       end
 
       #TODO
