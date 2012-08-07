@@ -21,11 +21,16 @@ class ReportDataManager
   def get_raw_xml_for_scan(scan_id)
     data = nil
 
-    data = get_adhoc_for_scan(scan_id)
+    # Try ad hoc first and if it fails try the on disk method
+    begin
+      data = get_adhoc_for_scan(scan_id)
+    rescue Exception => e
+      # TODO: maybe log
+    end
 
     #check to see if we have an empty report
     #if so, generate an ondisk report instead
-    if data.to_s.length < 131
+    if data.nil? || data.to_s.length < 131
       data = get_on_disk_report_for_scan(scan_id) 
     end
 
@@ -38,9 +43,7 @@ class ReportDataManager
   def get_adhoc_for_scan(scan_id)
     adhoc_report_generator = Nexpose::ReportAdHoc.new(@nsc_connection)
     adhoc_report_generator.addFilter('scan', scan_id)
-
     data = adhoc_report_generator.generate
-
     data
   end
 
