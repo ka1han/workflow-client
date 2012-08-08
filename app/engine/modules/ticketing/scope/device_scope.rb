@@ -83,12 +83,9 @@ class DeviceScope
   #---------------------------------------------------------------------------------------------------------------------
   def self.get_ticket_key(ticket)
     key = ''
-    key << ticket[:module_name]
+    key << ticket[:device_id].to_s
     key << '|'
     key << ticket[:nexpose_host]
-    key << '|'
-    key << ticket[:device_id].to_s
-
     key
   end
 end

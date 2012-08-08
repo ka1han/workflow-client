@@ -67,9 +67,7 @@ class VulnScope
   # Returns the ticket key for this scope type
   #---------------------------------------------------------------------------------------------------------------------
   def get_ticket_key(ticket)
-    key = ''
-    key << ticket[:vuln_id].to_s
-    key
+    key << ticket[:vuln_id].to_s + '|' + ticket[:nexpose_host]
   end
 
   def self.ticket_created_or_to_be_processed(ticket_data)

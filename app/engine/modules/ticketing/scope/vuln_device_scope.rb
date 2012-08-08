@@ -14,6 +14,8 @@
 # == Author
 # Christopher Lee christopher_lee@rapid7.com
 #-----------------------------------------------------------------------------------------------------------------------
+
+require 'json'
 class VulnDeviceScope
 
   def self.build_ticket_data(nexpose_host, site_device_listing, host_data_array, ticket_config)
@@ -138,13 +140,11 @@ class VulnDeviceScope
   #---------------------------------------------------------------------------------------------------------------------
   def self.get_ticket_key(ticket)
     key = ''
-    key << ticket[:module_name]
+    key << ticket[:vuln_id].to_s
     key << '|'
     key << ticket[:nexpose_host]
     key << '|'
     key << ticket[:device_id].to_s
-    key << '|'
-    key << ticket[:vuln_id].to_s
     key << '|'
     key << ticket[:port].to_s
     key << '|'
