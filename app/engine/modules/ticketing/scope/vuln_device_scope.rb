@@ -86,6 +86,7 @@ class VulnDeviceScope
               :proof => proof,
               :formatter => formatter,
               :client_connector => client_connector,
+              :ticket_type => :per_vuln_per_device,
               :ticket_op => :CREATE,
               :module_name => ticket_config.module_name
           }

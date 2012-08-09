@@ -17,8 +17,11 @@ class JiraFormatter < Formatter
       add_new_line formatted_output
 
       vuln_description_paragraph = build_paragraph ticket_info[:description]
-      vuln_description_paragraph.get_paragraph.each do |output|
-        do_formated_paragraph formatted_output, output
+
+      if vuln_description_paragraph
+        vuln_description_paragraph.get_paragraph.each do |output|
+          do_formated_paragraph formatted_output, output
+        end
       end
     end
 
@@ -26,8 +29,11 @@ class JiraFormatter < Formatter
     formatted_output << do_add_h3(do_underline 'Proof')
     add_new_line formatted_output
     vuln_proof_paragraph = build_paragraph ticket_info[:proof]
-    vuln_proof_paragraph.get_paragraph.each do |output|
-      do_formated_paragraph formatted_output, output
+
+    if vuln_proof_paragraph
+      vuln_proof_paragraph.get_paragraph.each do |output|
+        do_formated_paragraph formatted_output, output
+      end
     end
 
     # Build solution section
@@ -35,12 +41,28 @@ class JiraFormatter < Formatter
     formatted_output << do_add_h3(do_underline 'Solution')
     add_new_line formatted_output
     vuln_solution_paragraph = build_paragraph ticket_info[:solution]
-    vuln_solution_paragraph.get_paragraph.each do |output|
-      if @in_link_build and not output[:link]
-        add_new_line formatted_output
+
+    if vuln_solution_paragraph
+      vuln_solution_paragraph.get_paragraph.each do |output|
+        if @in_link_build and not output[:link]
+          add_new_line formatted_output
+        end
+
+        do_formated_paragraph formatted_output, output
+      end
+    end
+
+    if ticket_info[:hosts] and ticket_info[:hosts].length > 0
+      p "Hosts: " + ticket_info[:hosts]
+      add_new_line formatted_output
+      formatted_output << do_add_h3(do_underline 'Hosts Vulnerable')
+      add_new_line formatted formatted_output
+
+      ticket_info[:hosts].each do |host|
+        add_new_line host
       end
 
-      do_formated_paragraph formatted_output, output
+      do_formatted_paragraph formatted_output, output
     end
 
     formatted_output

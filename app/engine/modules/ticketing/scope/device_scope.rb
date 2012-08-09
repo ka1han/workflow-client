@@ -23,6 +23,12 @@ class DeviceScope
     hosts_data_array.each do |host_data|
       next if host_data['vulns'].length == 0
 
+      v = []
+
+      host_data['vulns'].each do |vuln|
+        v << vuln if Util.is_vulnerable?(vuln[1]["status"])
+      end
+
       ip = host_data['addr']
       names = host_data['names']
 
@@ -45,9 +51,10 @@ class DeviceScope
         :device_id => device_id,
         :name => name,
         :fingerprint => fingerprint,
-        :host_vulns => host_data['vulns'],
+        :host_vulns => v,
         :formatter => formatter,
         :client_connector => client_connector,
+        :ticket_type => :per_device,
         :ticket_op => :CREATE,
         :module_name => ticket_config.module_name
       }

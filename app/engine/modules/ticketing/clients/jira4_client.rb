@@ -118,19 +118,18 @@ class Jira4Client < TicketClient
     data = {}
 
     # If this is a test ticket
-    if ticket_data[:ticket_type] and ticket_data[:ticket_type].eql?('test_ticket')
+    if ticket_data[:ticket_type].eql?('test_ticket')
       # Remove unknown to JIRA map attribute
       ticket_data.delete(:ticket_type)
       return ticket_data
     end
-
 
     ticket_data[:name] ||=  ''
 
     formatter = get_formatter ticket_data[:formatter].to_s
     vuln_id = ticket_data[:vuln_id]
 
-    if vuln_id and not vuln_id.empty? #PerVulnPerDevice scope
+    if ticket_data[:scope_id] == 1 #Per vuln per device
       vuln_info = VulnInfo.find_by_vuln_id(vuln_id)
       raise "Could not find vuln data for vuln id: #{vuln_id}" unless vuln_info
 
@@ -140,10 +139,17 @@ class Jira4Client < TicketClient
           :solution    => vuln_info.vuln_data[:solution]
       }
 
+      if ticket_data[:hosts]
+        ticket_info[:hosts] = []
+
+        ticket_data[:hosts].each do |host|
+          ticket_info[:hosts] << host
+        end
+      end
+
       description = formatter.do_ticket_description_format ticket_info
       #description = ticket_info[:description] + ticket_info[:solution]
       summary     = "#{vuln_info.vuln_data[:title]} on #{ticket_data[:ip]}"
-
       summary << " (#{ticket_data[:name]})" if ticket_data[:name] and !ticket_data[:name].empty?
 
       environment = ticket_data[:fingerprint].to_s
@@ -164,7 +170,7 @@ class Jira4Client < TicketClient
       data[:assignee_username] = @client_info.assignee
       data[:cvss_score]        = vuln_info[:cvss]
       data
-    elsif ticket_data[:host_vulns] #PerDevice scope
+    elsif ticket_data[:scope_id] == 2 #Per device
       data = {}
 
       data[:summary] = ticket_data[:ip] 
@@ -183,14 +189,15 @@ class Jira4Client < TicketClient
         data[:description] << vuln_info.vuln_data[:description]
       end
       data
-    elsif ticket_data[:hosts] #PerVuln scope
+    elsif ticket_data[:scope_id] == 3 #Per vulnerability
       data = {}
 
-      vuln_info = VulnInfo.find_by_vuln_id(ticket_data[:ticket_id])
+      vuln_info = VulnInfo.find_by_vuln_id(ticket_data[:ticket_id].split('|')[0])
+
       data[:description] = vuln_info.vuln_data[:description]
 
       data[:summary] = ticket_data[:hosts].length.to_s + " hosts are vulnerable to "
-      data[:summary] << ticket_data[:ticket_id]
+      data[:summary] << ticket_data[:ticket_id].split('|')[0]
       data[:priority_id] = @client_info.priority_id
       data[:project_name] = @client_info.project_name
       data[:issue_type_id] = @client_info.issue_id
@@ -323,8 +330,8 @@ class Jira4Client < TicketClient
 
     action_id = 0
 
-    #Every ticket has a specific set of action that are available
-    #The id's for these actions differ from one installation to another
+    #Every ticket has a specific set of actions that are available
+    #The ids for these actions differ from one installation to another
     #but the names remain the same
     #
     #Loop through each action, find the Resolve Issue action and grab its id
@@ -339,7 +346,7 @@ class Jira4Client < TicketClient
       raise "Couldn't find the the Resolve Issue action."
     end
 
-    #the field value we will be updating when we progress the workflow
+    #the field and value we will be updating when we progress the workflow
     resolved = JIRA::FieldValue.new 'resolution', 1
 
     ret = {}

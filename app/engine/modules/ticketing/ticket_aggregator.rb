@@ -86,7 +86,11 @@ class TicketAggregator
             raise "Invalid ticket scope encountered #{ticket_scope_id}"
         end
       rescue Exception => e
+        Rails.logger.warn e.message
+        Rails.logger.warn e.backtrace
+        p e.backtrack
         raise "Failed to created tickets for scope #{ticket_scope_id}: " + e.message
+
       end
 
       begin
@@ -117,8 +121,10 @@ class TicketAggregator
           end
         end
       rescue Exception => e
-        p e.message
-        p e.backtrace
+        Rails.logger.warn e.message
+        Rails.logger.warn e.backtrace
+
+        @logger.add_log_message("[!] Error in ticket creation. Please see log.")
       end
 
       ScansProcessed.create(:scan_id => scan_id, :host => nexpose_host, :module => module_name)

@@ -212,8 +212,10 @@ class TicketManager < Poller
         end
 
       rescue Exception => e
-
+        p e.message
+        p e.backtrace
         Rails.logger.warn e.message
+        Rails.logger.warn e.backtrace
         failed_attempts = ticket_to_be_processed.failed_attempt_count
         if failed_attempts > IntegerProperty.find_by_property_key('max_ticketing_attempts').property_value
           ticket_to_be_processed.failed_message = e.message

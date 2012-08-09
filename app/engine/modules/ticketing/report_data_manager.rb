@@ -25,12 +25,13 @@ class ReportDataManager
     begin
       data = get_adhoc_for_scan(scan_id)
     rescue Exception => e
-      # TODO: maybe log
+      p e.message
+      p e.stacktrace
     end
 
     #check to see if we have an empty report
     #if so, generate an ondisk report instead
-    if data.nil? || data.to_s.length < 131
+    if data.nil? || data.inspect =~ /<UNDEFINED>/ || data.to_s.length < 131
       data = get_on_disk_report_for_scan(scan_id) 
     end
 
@@ -73,7 +74,7 @@ class ReportDataManager
 
         #sleep to let nexpose catch up with itself
         #we may end up with empty reports if we don't
-        sleep(60)
+        sleep(10)
       end
 
       last_data_file_size = 0

@@ -33,12 +33,20 @@ class VulnScope
       host_ticket_data[:name] = name
       host_ticket_data[:fingerprint] = fingerprint
       host_ticket_data[:ip] = host_data['addr']
+      host_ticket_data[:nexpose_host] = nexpose_host
 
       host_data["vulns"].each do |vuln|
+        is_vuln = Util.is_vulnerable?(vuln[1]["status"])
+
+        next if not is_vuln
+
         id = vuln[0]
 
         vulns[id]                    ||= {} #make the vuln hash if it doesn't exist already
-        vulns[id][:ticket_id]        ||= id
+        vulns[id][:vuln_id]          ||= id
+        vulns[id][:nexpose_host]     ||= nexpose_host
+        vulns[id][:ticket_id]        ||= self.get_ticket_key(vulns[id])
+        vulns[id][:ticket_type]      ||= :per_vuln
         vulns[id][:ticket_op]        ||= :CREATE
         vulns[id][:hosts]            ||= [] #create hosts array for parent hash if it doesn't exist already
         vulns[id][:hosts]            << host_ticket_data
@@ -66,7 +74,8 @@ class VulnScope
   #---------------------------------------------------------------------------------------------------------------------
   # Returns the ticket key for this scope type
   #---------------------------------------------------------------------------------------------------------------------
-  def get_ticket_key(ticket)
+  def self.get_ticket_key(ticket)
+    key = ''
     key << ticket[:vuln_id].to_s + '|' + ticket[:nexpose_host]
   end
 

@@ -15,6 +15,7 @@ class Formatter
   # input: An input array
   #------------------------------------------------------------------------------------------------------
   def build_paragraph input
+    return nil if input.nil?
 
     paragraph = Paragraph.new
 
