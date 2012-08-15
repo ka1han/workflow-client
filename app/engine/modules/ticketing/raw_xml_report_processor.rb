@@ -54,7 +54,7 @@ class RawXMLReportProcessor
   def add_to_vuln_db(vuln_data)
     begin
       id = vuln_data["id"].to_s.downcase.chomp
-      unless VulnInfo.where(:vuln_id => id).exists?
+      unless (VulnInfo.where(:vuln_id => id).exists? or not Util.is_vulnerable(vuln_data["status"]))
         begin
           vuln_input_data = {
               :severity    => vuln_data["severity"],

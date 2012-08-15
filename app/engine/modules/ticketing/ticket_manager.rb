@@ -194,10 +194,16 @@ class TicketManager < Poller
         result = {}
         case ticket_data[:ticket_op]
           when :CREATE
+            Rails.logger.warn "Creating ticket: " + ticket_data[:summary]
+            @logger.add_log_message "[+] Creating ticket: " + ticket_data[:summary]
             result = ticket_client.create_ticket(ticket_data)
           when :UPDATE
+            Rails.logger.warn "Updating ticket: " + ticket_data[:summary]
+            @logger.add_log_message "[+] Updating ticket: " + ticket_data[:summary]
             result = ticket_client.update_ticket(ticket_data)
           when :CLOSE
+            Rails.logger.warn "Closing ticket: " + ticket_data[:summary]
+            @logger.add_log_message "[+] Closing ticket: " + ticket_data[:summary]
             result = ticket_client.close_ticket(ticket_data)
           else
             raise "Invalid ticket operation: #{ticket_data[:ticket_op]}"
@@ -212,8 +218,8 @@ class TicketManager < Poller
         end
 
       rescue Exception => e
-        p e.message
-        p e.backtrace
+        @logger.add_log_message e.message
+        @logger.add_log_message e.backtrace
         Rails.logger.warn e.message
         Rails.logger.warn e.backtrace
         failed_attempts = ticket_to_be_processed.failed_attempt_count

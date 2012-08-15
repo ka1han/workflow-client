@@ -204,7 +204,7 @@ class Jira4Client < TicketClient
       data[:reporter_username] = @client_info.reporter
       data[:assignee_username] = @client_info.assignee
 
-      #data[:description] = ''
+      data[:description] ||= ''
       ticket_data[:hosts].each do |host|
         data[:description] << "|" + host[:ip]
       end
@@ -226,9 +226,9 @@ class Jira4Client < TicketClient
     end
   end
 
-  #---------------------------------------------------------------------------------------------------------------------
+  #-----------------------------------------------------------------------------------------------
   # Determines if the user added mapping
-  #---------------------------------------------------------------------------------------------------------------------
+  #-----------------------------------------------------------------------------------------------
   def is_mapping_defined?
     if @ticket_mappings
       @ticket_mappings.attributes.values.each do |value|
@@ -244,19 +244,7 @@ class Jira4Client < TicketClient
   end
 
 
-  # It is confusing as to what the actual project name
-  # is however JIRA expects something that ends with
-  # "PROJECT"
-=begin
-		unless jira_issue.project_name =~ /project$/i
-			jira_issue.project_name = jira_issue.project_name + 'project'
-			# Case matters :p
-			jira_issue.project_name.upcase!
-		end
-=end
-  #
   # This should use the user defined map to build the jira issue
-  #
   def build_jira_issue data
     jira_issue = JIRA::Issue.new
 
@@ -292,7 +280,6 @@ class Jira4Client < TicketClient
   end
 
   def create_test_ticket form_input, ticket_mappings=nil
-
     if ticket_mappings
       @mapping_defined = true
       @ticket_mappings = ticket_mappings
@@ -312,16 +299,19 @@ class Jira4Client < TicketClient
     create_ticket data
   end
 
-  #
-  #
-  #
-  def update_ticket
-    raise 'Ticket client abstraction called!'
+  #Update a ticket given new ticket_data
+  def update_ticket ticket_data
+    @jira.login @username, @password
+
+    summary = JIRA::FieldValue.new 'summary', ticket_data[:sumary]
+    description = JIRA::FieldValue.new 'description', ticket_data[:description]
+
+    @jira.update_issue ticket_data[:key], summary, description 
+
+    @jira.logout
   end
 
-  #
-  #
-  #
+  #Mark a ticket as resolved
   def close_ticket ticket_data
     @jira.login @username, @password
 

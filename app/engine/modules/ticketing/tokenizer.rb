@@ -18,7 +18,7 @@ class Tokenizer
 
       @tokens.each do |token_key, token_value|
 
-        #we can't replace tokens in :symbols
+        #we can't replace tokens in :symbols since :symbols are immutable
         next if value.kind_of? Symbol
 
         if key == :body or key == :headers
