@@ -56,7 +56,7 @@ class SOAPValidator < ActiveModel::Validator
 
       mappings[:body].each do |key, value|
         # Skip headers
-        if 'header'.eql?(key) and value.kind_of?(Hash)
+        if ('header'.eql?(key) and value.kind_of?(Hash)) || (value.kind_of?(String) && (value.nil? || value.empty?))
           next
         end
 
@@ -73,11 +73,10 @@ class SOAPValidator < ActiveModel::Validator
               end
 
             # Validation for date (format: YYYY-MM-DD)
-            elsif param['type'] =~ /date/
+            elsif param['type'] =~ /date$/
               unless (value =~ /(\d{4})-(\d{2})-(\d{2})/)
                  soap_record.errors[:base] << "The field #{key} requires a date (format : YYYY-MM-DD)"
               end
-            end
 
             # Validation for dateTime (format: YYYY-MM-DDThh:mm:ss)
             elsif param['type'] =~ /dateTime/
@@ -86,9 +85,8 @@ class SOAPValidator < ActiveModel::Validator
               end
             end
           end
+        end
       end
-
-
   end
 end
 

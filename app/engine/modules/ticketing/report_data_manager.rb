@@ -20,7 +20,7 @@ class ReportDataManager
   #---------------------------------------------------------------------------------------------------------------------
   def get_raw_xml_for_scan(scan_id)
     data = nil
-    
+
     # Try ad hoc first and if it fails try the on disk method
     begin
       data = get_adhoc_for_scan(scan_id)

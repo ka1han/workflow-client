@@ -9,6 +9,8 @@
 						.btnRow
 							%div{:class => "btn"}
 								= link_to "Add a Nexpose Console", new_nsc_config_path, :class => "new"
+							%div{:class => "btn"}
+								= link_to "Manual Nexpose import", 'manual_imports/nexpose_imports', :class => "new"
 						%h3 Added Modules
 						.stepInfo
 							%table{:class => "list"}
