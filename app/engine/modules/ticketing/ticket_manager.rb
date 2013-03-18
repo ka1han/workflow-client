@@ -117,7 +117,6 @@ class TicketManager < Poller
     end
   end
 
-
   #---------------------------------------------------------------------------------------------------------------------
   # Performs ticket processing.
   #---------------------------------------------------------------------------------------------------------------------
@@ -176,6 +175,16 @@ class TicketManager < Poller
             soap_ticket_data[:headers][key] = value
           end
 
+          if ticket_data[:host_vulns]
+            ticket_data["vuln_data"] = {}
+            ticket_data["vuln_data"][:description] = ""
+
+            ticket_data[:host_vulns].each do |k,v|
+              next if v["status"] != "vulnerable-exploited"
+              ticket_data["vuln_data"][:description] << v["id"] + " -- " + v["status"] + "\n\n"
+            end
+          end
+
           #replace $TOKEN$ vars with the data from the scan.
           Tokenizer tokenizer = Tokenizer.new
           soap_ticket_data = tokenizer.tokenize(ticket_data, soap_ticket_data)
@@ -214,6 +223,7 @@ class TicketManager < Poller
       rescue Exception => e
 
         Rails.logger.warn e.message
+        Rails.logger.warn e.backtrace
         failed_attempts = ticket_to_be_processed.failed_attempt_count
         if failed_attempts > IntegerProperty.find_by_property_key('max_ticketing_attempts').property_value
           ticket_to_be_processed.failed_message = e.message
