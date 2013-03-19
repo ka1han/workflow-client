@@ -43,6 +43,11 @@
 											= f.check_box :stage_tickets
 									%dl
 										%dt
+											= f.label 'Ignore Previous Tickets'
+										%dd
+											= f.check_box :ignore_previous_tickets
+									%dl
+										%dt
 											= f.label('Module Name*', nil, {:style => "color:red"})
 										%dd
 											= f.text_field :module_name

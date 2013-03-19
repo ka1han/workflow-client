@@ -55,7 +55,11 @@ class DeviceScope
       ticket_id = self.get_ticket_key(ticket_data)
       ticket_data[:ticket_id] = ticket_id
 
-      if !self.ticket_created_or_to_be_processed?(ticket_data)
+      if ticket_config.ignore_previous_tickets
+        if rule_manager.passes_rules?(ticket_data)
+          res << ticket_data
+        end
+      elsif !self.ticket_created_or_to_be_processed?(ticket_data)
         #we need to ensure the ticket passes all our rules
         if rule_manager.passes_rules?(ticket_data)
           res << ticket_data

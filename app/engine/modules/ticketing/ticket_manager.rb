@@ -180,8 +180,11 @@ class TicketManager < Poller
             ticket_data["vuln_data"][:description] = ""
 
             ticket_data[:host_vulns].each do |k,v|
-              next if v["status"] != "vulnerable-exploited"
-              ticket_data["vuln_data"][:description] << v["id"] + " -- " + v["status"] + "\n\n"
+              next if v["status"] !~ /^vulnerable-/
+              info = VulnInfo.find_by_vuln_id(v["id"])
+              p info.inspect
+              ticket_data["vuln_data"][:description] << v["id"] + " -- " + v["status"] + "\n"
+              ticket_data["vuln_data"][:description] << info.vuln_data[:description].gsub("||", "") + "\n\n---------------------------------------\n"
             end
           end
 
