@@ -40,6 +40,15 @@ class TicketAggregator
     data = report_manager.get_raw_xml_for_scan(scan_id)
     raw_xml_report_processor = RawXMLReportProcessor.new
     raw_xml_report_processor.parse(data)
+    
+    sites = nsc_connection.site_listing
+
+    site = ''
+    sites.each do |s|
+      site = s[:name] if s[:site_id].to_i == site_id.to_i
+    end
+
+    p site
 
     # The only way to get the corresponding device-id is though mappings
     site_device_listing = nsc_connection.site_device_listing(site_id)
@@ -70,17 +79,17 @@ class TicketAggregator
         case ticket_scope_id
           when 1
             #Create one ticket per vuln per device
-            ticket_data = VulnDeviceScope.build_ticket_data(nexpose_host, site_device_listing, raw_xml_report_processor.host_data, ticket_config)
+            ticket_data = VulnDeviceScope.build_ticket_data(nexpose_host, site_device_listing, raw_xml_report_processor.host_data, ticket_config, site)
             scope_id = 1
           when 2
             #Create one ticket per device
-            ticket_data = DeviceScope.build_ticket_data(nexpose_host, site_device_listing, raw_xml_report_processor.host_data, ticket_config)
+            ticket_data = DeviceScope.build_ticket_data(nexpose_host, site_device_listing, raw_xml_report_processor.host_data, ticket_config, site)
             scope_id = 2
           when 3
             #Create one ticket per vuln.
             #If three hosts are vulnerable to ms08-067, one ticket is created
             #for ms08-067 and the assets are listed in the ticket
-            ticket_data = VulnScope.build_ticket_data(nexpose_host, site_device_listing, raw_xml_report_processor.host_data, ticket_config)
+            ticket_data = VulnScope.build_ticket_data(nexpose_host, site_device_listing, raw_xml_report_processor.host_data, ticket_config, site)
             scope_id = 3
           else
             raise "Invalid ticket scope encountered #{ticket_scope_id}"

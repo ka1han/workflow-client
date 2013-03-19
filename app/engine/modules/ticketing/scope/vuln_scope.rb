@@ -2,7 +2,7 @@
 #Each ticket will contain every asset vulnerable to the given vuln
 class VulnScope
 
-  def self.build_ticket_data(nexpose_host, site_device_listing, host_data_array, ticket_config)
+  def self.build_ticket_data(nexpose_host, site_device_listing, host_data_array, ticket_config, site)
     vulns = {}
 
     supports_updates = ticket_config.supports_updates

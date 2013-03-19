@@ -1,7 +1,7 @@
 #The device scope creates one ticket per device, with all the vulns an asset has
 class DeviceScope
 
-  def self.build_ticket_data(nexpose_host, site_device_listing, hosts_data_array, ticket_config)
+  def self.build_ticket_data(nexpose_host, site_device_listing, hosts_data_array, ticket_config, site)
 
     #this is what we return
     res = []
@@ -23,8 +23,8 @@ class DeviceScope
     hosts_data_array.each do |host_data|
       next if host_data['vulns'].length == 0
 
-      ip = host_data['addr']
       names = host_data['names']
+      ip = host_data['addr']
 
       #the nexpose device id, an integer
       device_id = self.get_device_id(ip, site_device_listing)
@@ -49,7 +49,8 @@ class DeviceScope
         :formatter => formatter,
         :client_connector => client_connector,
         :ticket_op => :CREATE,
-        :module_name => ticket_config.module_name
+        :module_name => ticket_config.module_name,
+        :site => site
       }
 
       ticket_id = self.get_ticket_key(ticket_data)

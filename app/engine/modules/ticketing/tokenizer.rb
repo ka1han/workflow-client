@@ -77,6 +77,7 @@ class Tokenizer
     tokens["$SCAN_START$"] = :scan_start
     tokens["$SCAN_END$"] = :scan_end
     tokens["$CVSS_SCORE$"] = :cvss
+    tokens["$SITE_NAME$"] = :site
 
     tokens
   end

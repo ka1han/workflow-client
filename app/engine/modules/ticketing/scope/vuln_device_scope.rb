@@ -16,7 +16,7 @@
 #-----------------------------------------------------------------------------------------------------------------------
 class VulnDeviceScope
 
-  def self.build_ticket_data(nexpose_host, site_device_listing, host_data_array, ticket_config)
+  def self.build_ticket_data(nexpose_host, site_device_listing, host_data_array, ticket_config, site)
     res = []
     # Only do update process if the module supports it
     supports_updates = ticket_config.supports_updates
