@@ -22,9 +22,9 @@ class GenericSoapClient < TicketClient
 
     @parser = WSDLParser.parse @client.wsdl.xml
 
-    tmp = config.mappings[:operation].split('|')
-    service = tmp[0]
-    op = tmp[1]
+
+    service = config.mappings[:service] 
+    op = config.mappings[:operation]
 
     @parser.bindings.each do |binding|
       next if not binding["name"] == service
