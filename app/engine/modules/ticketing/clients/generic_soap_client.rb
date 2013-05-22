@@ -23,8 +23,17 @@ class GenericSoapClient < TicketClient
     @parser = WSDLParser.parse @client.wsdl.xml
 
 
-    service = config.mappings[:service] 
-    op = config.mappings[:operation]
+    #Apparently different data is sent when you are creating a test ticket vs a real ticket
+    service = nil
+    op = nil
+    if config.mappings[:service]
+      service = config.mappings[:service] 
+      op = config.mappings[:operation]
+    else
+      tmp = config.mappings[:operation].split '|'
+      service = tmp[0]
+      op = tmp[1]
+    end
 
     @parser.bindings.each do |binding|
       next if not binding["name"] == service
